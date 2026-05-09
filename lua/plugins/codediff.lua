@@ -10,36 +10,23 @@ return {
   {
     "esmuellert/codediff.nvim",
     cmd = "CodeDiff",
-    keys = {
-      {
-        "<leader>gd",
-        function()
-          require("config.codediff").open_current_file("side-by-side")
-        end,
-        desc = "Git Diff (current file)",
-      },
-      {
-        "<leader>gi",
-        function()
-          require("config.codediff").open_current_file("inline")
-        end,
-        desc = "Git Diff Inline (current file)",
-      },
-      {
-        "<leader>gD",
-        function()
-          require("config.codediff").open_repo("side-by-side")
-        end,
-        desc = "Git Diff (repo)",
-      },
-      {
-        "<leader>gH",
-        function()
-          require("config.codediff").open_history()
-        end,
-        desc = "Git History (CodeDiff)",
-      },
-    },
+    init = function()
+      vim.keymap.set("n", "<leader>gd", function()
+        require("config.codediff").open_current_file("side-by-side", { fold_unchanged = true })
+      end, { desc = "Git Diff (current file, folded)" })
+
+      vim.keymap.set("n", "<leader>gi", function()
+        require("config.codediff").open_current_file("inline", { fold_unchanged = true })
+      end, { desc = "Git Diff Inline (current file, folded)" })
+
+      vim.keymap.set("n", "<leader>gD", function()
+        require("config.codediff").open_repo("side-by-side", { fold_unchanged = true })
+      end, { desc = "Git Diff (repo, folded)" })
+
+      vim.keymap.set("n", "<leader>gH", function()
+        require("config.codediff").open_history({ fold_unchanged = true })
+      end, { desc = "Git History (CodeDiff, folded)" })
+    end,
     opts = {
       diff = {
         layout = "side-by-side",

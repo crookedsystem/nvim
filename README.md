@@ -36,10 +36,10 @@
 |                   | n    | `<leader>dO`   | 스텝 아웃                                      |
 |                   | n    | `<leader>dq`   | 디버깅 종료                                    |
 |                   | n    | `<leader>du`   | 디버그 UI 토글                                 |
-| **CodeDiff**      | n    | `<leader>gd`   | 현재 파일 Git Diff (side-by-side)              |
-|                   | n    | `<leader>gi`   | 현재 파일 Git Diff (inline)                    |
-|                   | n    | `<leader>gD`   | 저장소 Git Diff Explorer                       |
-|                   | n    | `<leader>gH`   | Git 커밋 히스토리                              |
+| **CodeDiff**      | n    | `<leader>gd`   | 현재 파일 Git Diff (side-by-side, 변경 라인만 표시) |
+|                   | n    | `<leader>gi`   | 현재 파일 Git Diff (inline, 변경 라인만 표시)   |
+|                   | n    | `<leader>gD`   | 저장소 Git Diff Explorer (변경 라인만 표시)     |
+|                   | n    | `<leader>gH`   | Git 커밋 히스토리 (변경 라인만 표시)             |
 |                   | diff | `]c` / `[c`    | 다음/이전 변경 hunk 이동                       |
 |                   | diff | `]f` / `[f`    | 다음/이전 파일 이동                            |
 |                   | diff | `do` / `dp`    | 변경 가져오기/보내기                           |
@@ -103,14 +103,15 @@ VSCode 스타일의 diff 렌더링 플러그인. side-by-side / inline 레이아
 
 **사용법**:
 
-1. `<leader>gd`로 현재 파일을 새 탭 side-by-side diff로 확인
-2. `<leader>gi`로 현재 파일을 새 탭 inline diff로 확인
-3. `<leader>gD`로 저장소 전체 변경사항 explorer를 열기
-4. `<leader>gH`로 커밋 히스토리 탐색
+1. `<leader>gd`로 현재 파일을 새 탭 side-by-side diff로 확인. 미변경 라인은 모두 접고 변경 라인만 바로 보이게 표시됩니다.
+2. `<leader>gi`로 현재 파일을 새 탭 inline diff로 확인. 이 경우에도 미변경 라인은 접힘 처리됩니다.
+3. `<leader>gD`로 저장소 전체 변경사항 explorer를 열기. 파일을 선택하면 diff pane의 미변경 라인이 접힙니다.
+4. `<leader>gH`로 커밋 히스토리 탐색. 파일 diff를 열면 미변경 라인이 접힙니다.
 5. Diff 뷰에서 `]c`/`[c`로 변경 hunk 간 이동
 6. `-`로 파일 Stage/Unstage, `<leader>hs`로 hunk 단위 Stage
 7. `t`로 side-by-side/inline 레이아웃 전환
-8. `g?`로 전체 키맵 도움말 확인
+8. 접힌 미변경 구간은 `... N unchanged lines folded` 형태로 표시됩니다. 커서를 fold 라인에 두고 `zo`로 열기. 전체 fold를 한 번에 열려면 `zR` 사용
+9. `g?`로 전체 키맵 도움말 확인
 
 현재 버퍼가 일반 파일이 아니거나 Git 저장소 밖이면 `<leader>gd` / `<leader>gi`는 자동으로 저장소 explorer로 fallback 됩니다.
 
@@ -126,6 +127,8 @@ VSCode 스타일의 diff 렌더링 플러그인. side-by-side / inline 레이아
 | `<leader>hu` | hunk Unstage |
 | `<leader>hr` | hunk 버리기 (Discard) |
 | `t` | 레이아웃 전환 |
+| `zo` / `zO` | 접힌 미변경 구간 열기 / 재귀적으로 열기 |
+| `zR` / `zM` | 모든 fold 열기 / 모든 fold 닫기 |
 | `q` | Diff 뷰 닫기 |
 
 **충돌 해결 키맵**:
