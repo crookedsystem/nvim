@@ -2,7 +2,8 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
--- Clipboard 안씀 -> XClip 사용
+-- yank를 시스템 클립보드(+ 레지스터)와 자동 연동
+-- 로컬: pbcopy/xclip 자동 감지, SSH: init.lua에서 OSC 52 provider 명시
 vim.opt.clipboard = "unnamedplus"
 
 -- UTF-8 인코딩 설정
