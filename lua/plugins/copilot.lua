@@ -1,30 +1,34 @@
 -- ref : https://github.com/MariaSolOs/dotfiles/blob/022de739ecbf4c6c20aadf1d1be143f1f3a65967/.config/nvim/lua/plugins/copilot.lua#L4
 -- Copilot completion.
 
+-- NVM Node 경로에서 v<major>.<minor>.<patch> 숫자를 추출한다.
+local function parse_node_semver(path)
+  local major, minor, patch = path:match("/v(%d+)%.(%d+)%.(%d+)/bin/node$")
+  return tonumber(major) or 0, tonumber(minor) or 0, tonumber(patch) or 0
+end
+
+-- 경로 문자열 정렬은 v22.9.0 > v22.10.0처럼 잘못된 결과를 내므로 semver 숫자 비교를 한다.
+local function compare_node_semver(a, b)
+  local a_major, a_minor, a_patch = parse_node_semver(a)
+  local b_major, b_minor, b_patch = parse_node_semver(b)
+  if a_major ~= b_major then
+    return a_major < b_major
+  end
+  if a_minor ~= b_minor then
+    return a_minor < b_minor
+  end
+  return a_patch < b_patch
+end
+
 -- NVM에 설치된 Node v22 계열 중 가장 최신 버전 경로를 반환.
 -- system Node 버전을 v22+로 끌어올리지 않고 Copilot 전용으로 v22를 쓰기 위해 사용한다.
--- 경로 문자열 정렬은 v22.9.0 > v22.10.0처럼 잘못된 결과를 내므로 semver 숫자 비교를 한다.
 local function find_copilot_node()
   local nvm_dir = vim.fn.expand("$HOME") .. "/.nvm/versions/node"
   local candidates = vim.fn.glob(nvm_dir .. "/v22.*/bin/node", false, true)
   if #candidates == 0 then
     return nil
   end
-  local function semver(path)
-    local major, minor, patch = path:match("/v(%d+)%.(%d+)%.(%d+)/bin/node$")
-    return tonumber(major) or 0, tonumber(minor) or 0, tonumber(patch) or 0
-  end
-  table.sort(candidates, function(a, b)
-    local a_major, a_minor, a_patch = semver(a)
-    local b_major, b_minor, b_patch = semver(b)
-    if a_major ~= b_major then
-      return a_major < b_major
-    end
-    if a_minor ~= b_minor then
-      return a_minor < b_minor
-    end
-    return a_patch < b_patch
-  end)
+  table.sort(candidates, compare_node_semver)
   return candidates[#candidates]
 end
 
