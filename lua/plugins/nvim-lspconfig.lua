@@ -2,7 +2,7 @@ return {
   "neovim/nvim-lspconfig",
   opts = {
     servers = {
-      prismals = {},
+      prismals = { mason = false },
       pyright = { enabled = false },
       ruff = { enabled = false },
       pylsp = {
