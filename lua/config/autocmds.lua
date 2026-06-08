@@ -7,16 +7,6 @@
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
--- didOpen 전에 oil:// 버퍼 attach를 차단 (vtsls UriError 방지)
-local original_buf_attach = vim.lsp.buf_attach_client
-vim.lsp.buf_attach_client = function(bufnr, client_id)
-  local bufname = vim.api.nvim_buf_get_name(bufnr)
-  if bufname:match("^oil://") then
-    return false
-  end
-  return original_buf_attach(bufnr, client_id)
-end
-
 -- 특정 파일타입만 autoformat 활성화
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "java", "typescript", "kotlin", "yaml", "json" },
