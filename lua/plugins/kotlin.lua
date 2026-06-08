@@ -1,10 +1,10 @@
 return {
-  -- fwcd/kotlin-language-server 비활성화 (JetBrains kotlin-lsp로 교체)
+  -- mason-lspconfig 자동 활성화 차단 (kotlin.nvim이 직접 관리)
   {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        kotlin_language_server = { enabled = false },
+        kotlin_lsp = { enabled = false },
       },
     },
   },
