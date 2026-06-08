@@ -7,6 +7,28 @@
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
+-- didOpen 전에 oil:// 버퍼 attach를 차단 (vtsls UriError 방지)
+local original_buf_attach = vim.lsp.buf_attach_client
+vim.lsp.buf_attach_client = function(bufnr, client_id)
+  local bufname = vim.api.nvim_buf_get_name(bufnr)
+  if bufname:match("^oil://") then
+    return false
+  end
+  return original_buf_attach(bufnr, client_id)
+end
+
+-- LSP 네비게이션을 vim.lsp.buf 직접 호출로 오버라이드 (buffer-local)
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local buf = args.buf
+    local opts = { buffer = buf, silent = true }
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Goto Definition" }))
+    vim.keymap.set("n", "gI", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Goto Implementation" }))
+    vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "References" }))
+    vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "Goto Type Definition" }))
+  end,
+})
+
 -- 특정 파일타입만 autoformat 활성화
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "java", "typescript", "kotlin", "yaml", "json" },
