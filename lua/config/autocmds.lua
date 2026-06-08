@@ -7,17 +7,15 @@
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
--- oil:// 버퍼에 LSP가 attach되면 즉시 detach (vtsls UriError 방지)
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(args)
-    local bufname = vim.api.nvim_buf_get_name(args.buf)
-    if bufname:match("^oil://") then
-      vim.schedule(function()
-        pcall(vim.lsp.buf_detach_client, args.buf, args.data.client_id)
-      end)
-    end
-  end,
-})
+-- didOpen 전에 oil:// 버퍼 attach를 차단 (vtsls UriError 방지)
+local original_buf_attach = vim.lsp.buf_attach_client
+vim.lsp.buf_attach_client = function(bufnr, client_id)
+  local bufname = vim.api.nvim_buf_get_name(bufnr)
+  if bufname:match("^oil://") then
+    return false
+  end
+  return original_buf_attach(bufnr, client_id)
+end
 
 -- 특정 파일타입만 autoformat 활성화
 vim.api.nvim_create_autocmd("FileType", {
