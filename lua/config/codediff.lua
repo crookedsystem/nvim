@@ -1,11 +1,12 @@
 local M = {}
 
-local FOLD_CONTEXT_LINES = 0
+local FOLD_CONTEXT_LINES = 3
 local MIN_FOLD_LINES = 1
 local FOLD_RETRY_INTERVAL_MS = 50
 local MAX_FOLD_RETRY_COUNT = 100
 
 local fold_autocmd_seq = 0
+local diff_return_tabpage = nil
 
 local function ensure_codediff_loaded()
   require("lazy").load({ plugins = { "codediff.nvim" } })
@@ -54,9 +55,17 @@ local function merge_ranges(ranges)
   return merged
 end
 
-local function changed_range(range, line_count)
-  if not range or range.end_line <= range.start_line then
+local function visible_range_for_change(range, line_count)
+  if not range then
     return nil
+  end
+
+  if range.end_line <= range.start_line then
+    local anchor = math.min(math.max(range.start_line, 1), line_count)
+    return {
+      start_line = math.max(1, anchor - FOLD_CONTEXT_LINES),
+      end_line = math.min(line_count, anchor + FOLD_CONTEXT_LINES),
+    }
   end
 
   local change_start = math.min(math.max(range.start_line, 1), line_count)
@@ -75,7 +84,7 @@ local function visible_ranges(changes, side, line_count)
   local ranges = {}
 
   for _, change in ipairs(changes or {}) do
-    local range = changed_range(change[side], line_count)
+    local range = visible_range_for_change(change[side], line_count)
     if range then
       table.insert(ranges, range)
     end
@@ -213,7 +222,13 @@ local function apply_changed_folds(tabpage, retry_count, expected_path)
   end
 
   if #changes == 0 then
-    clear_session_folds(session)
+    if retry_count < MAX_FOLD_RETRY_COUNT then
+      vim.defer_fn(function()
+        apply_changed_folds(tabpage, retry_count + 1, expected_path)
+      end, FOLD_RETRY_INTERVAL_MS)
+    else
+      clear_session_folds(session)
+    end
     return
   end
 
@@ -226,12 +241,91 @@ local function apply_changed_folds(tabpage, retry_count, expected_path)
   fold_unchanged_window(session.modified_win, session.modified_bufnr, changes, "modified")
 end
 
+local function goto_source_definition()
+  local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
+  if not ok then
+    return
+  end
+
+  local tabpage = vim.api.nvim_get_current_tabpage()
+  local session = lifecycle.get_session(tabpage)
+  if not session then
+    return
+  end
+
+  local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+  local source_path = session.modified_path
+  local git_root = session.git_root
+  if not source_path or source_path == "" then
+    return
+  end
+
+  if git_root and not vim.startswith(source_path, "/") then
+    source_path = git_root .. "/" .. source_path
+  end
+
+  diff_return_tabpage = tabpage
+
+  local tabs = vim.api.nvim_list_tabpages()
+  local target_tab = nil
+  for _, t in ipairs(tabs) do
+    if t ~= tabpage then
+      target_tab = t
+      break
+    end
+  end
+
+  if target_tab then
+    vim.api.nvim_set_current_tabpage(target_tab)
+  else
+    vim.cmd("tabnew")
+  end
+
+  vim.cmd("edit " .. vim.fn.fnameescape(source_path))
+  local line_count = vim.api.nvim_buf_line_count(0)
+  pcall(vim.api.nvim_win_set_cursor, 0, { math.min(cursor_line, line_count), 0 })
+  vim.cmd("normal! zz")
+
+  vim.keymap.set("n", "<C-o>", function()
+    if diff_return_tabpage and vim.api.nvim_tabpage_is_valid(diff_return_tabpage) then
+      vim.api.nvim_set_current_tabpage(diff_return_tabpage)
+    end
+    diff_return_tabpage = nil
+    pcall(vim.keymap.del, "n", "<C-o>", { buffer = 0 })
+  end, { buffer = 0, desc = "Return to diff view" })
+end
+
+local function setup_goto_keymap(bufnr)
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+    return
+  end
+  pcall(vim.keymap.set, "n", "gd", goto_source_definition, { buffer = bufnr, desc = "Go to source file" })
+end
+
 local function create_fold_autocmds()
   fold_autocmd_seq = fold_autocmd_seq + 1
 
   local did_open = false
   local opened_tabpage
+  local last_applied = nil -- { diff, orig_win, mod_win }
   local group = vim.api.nvim_create_augroup("config_codediff_folds_" .. fold_autocmd_seq, { clear = true })
+
+  local function apply_and_setup(tabpage, retry_count, expected_path)
+    apply_changed_folds(tabpage, retry_count, expected_path)
+
+    local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
+    if ok then
+      local session = lifecycle.get_session(tabpage)
+      if session then
+        if session.original_bufnr then
+          setup_goto_keymap(session.original_bufnr)
+        end
+        if session.modified_bufnr then
+          setup_goto_keymap(session.modified_bufnr)
+        end
+      end
+    end
+  end
 
   vim.api.nvim_create_autocmd("User", {
     group = group,
@@ -243,7 +337,8 @@ local function create_fold_autocmds()
 
       did_open = true
       opened_tabpage = event.data.tabpage
-      apply_changed_folds(opened_tabpage)
+      last_applied = nil
+      apply_and_setup(opened_tabpage)
     end,
   })
 
@@ -258,9 +353,64 @@ local function create_fold_autocmds()
         return
       end
 
+      last_applied = nil
       vim.defer_fn(function()
-        apply_changed_folds(event.data.tabpage, 0, event.data.path)
+        apply_and_setup(event.data.tabpage, 0, event.data.path)
       end, FOLD_RETRY_INTERVAL_MS)
+    end,
+  })
+
+  -- layout toggle(t)이나 history 선택 시 CodeDiffOpen/FileSelect 이벤트 없이
+  -- stored_diff_result가 갱신되거나 window가 교체되므로, WinEnter에서 감지하여 fold 재적용
+  vim.api.nvim_create_autocmd("WinEnter", {
+    group = group,
+    callback = function()
+      if not opened_tabpage or vim.api.nvim_get_current_tabpage() ~= opened_tabpage then
+        return
+      end
+
+      local function check_and_apply(retry_count)
+        retry_count = retry_count or 0
+        local ok, lifecycle = pcall(require, "codediff.ui.lifecycle")
+        if not ok then
+          return
+        end
+
+        local session = lifecycle.get_session(opened_tabpage)
+        if not session then
+          return
+        end
+
+        local diff_result = session.stored_diff_result
+        if not diff_result then
+          if retry_count < MAX_FOLD_RETRY_COUNT then
+            vim.defer_fn(function()
+              check_and_apply(retry_count + 1)
+            end, FOLD_RETRY_INTERVAL_MS)
+          end
+          return
+        end
+
+        -- diff 결과뿐 아니라 window도 비교하여 layout toggle 후 window가 교체된 경우도 감지
+        local same = last_applied
+          and diff_result == last_applied.diff
+          and session.original_win == last_applied.orig_win
+          and session.modified_win == last_applied.mod_win
+        if same then
+          return
+        end
+
+        if diff_result.changes and #diff_result.changes > 0 then
+          last_applied = {
+            diff = diff_result,
+            orig_win = session.original_win,
+            mod_win = session.modified_win,
+          }
+          apply_and_setup(opened_tabpage)
+        end
+      end
+
+      check_and_apply()
     end,
   })
 
