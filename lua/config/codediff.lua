@@ -55,7 +55,7 @@ local function merge_ranges(ranges)
   return merged
 end
 
-local function changed_range(range, line_count)
+local function visible_range_for_change(range, line_count)
   if not range then
     return nil
   end
@@ -84,7 +84,7 @@ local function visible_ranges(changes, side, line_count)
   local ranges = {}
 
   for _, change in ipairs(changes or {}) do
-    local range = changed_range(change[side], line_count)
+    local range = visible_range_for_change(change[side], line_count)
     if range then
       table.insert(ranges, range)
     end
@@ -307,7 +307,7 @@ local function create_fold_autocmds()
 
   local did_open = false
   local opened_tabpage
-  local last_applied_diff = nil
+  local last_applied = nil -- { diff, orig_win, mod_win }
   local group = vim.api.nvim_create_augroup("config_codediff_folds_" .. fold_autocmd_seq, { clear = true })
 
   local function apply_and_setup(tabpage, retry_count, expected_path)
@@ -337,7 +337,7 @@ local function create_fold_autocmds()
 
       did_open = true
       opened_tabpage = event.data.tabpage
-      last_applied_diff = nil
+      last_applied = nil
       apply_and_setup(opened_tabpage)
     end,
   })
@@ -353,13 +353,15 @@ local function create_fold_autocmds()
         return
       end
 
-      last_applied_diff = nil
+      last_applied = nil
       vim.defer_fn(function()
         apply_and_setup(event.data.tabpage, 0, event.data.path)
       end, FOLD_RETRY_INTERVAL_MS)
     end,
   })
 
+  -- layout toggle(t)이나 history 선택 시 CodeDiffOpen/FileSelect 이벤트 없이
+  -- stored_diff_result가 갱신되거나 window가 교체되므로, WinEnter에서 감지하여 fold 재적용
   vim.api.nvim_create_autocmd("WinEnter", {
     group = group,
     callback = function()
@@ -389,12 +391,21 @@ local function create_fold_autocmds()
           return
         end
 
-        if diff_result == last_applied_diff then
+        -- diff 결과뿐 아니라 window도 비교하여 layout toggle 후 window가 교체된 경우도 감지
+        local same = last_applied
+          and diff_result == last_applied.diff
+          and session.original_win == last_applied.orig_win
+          and session.modified_win == last_applied.mod_win
+        if same then
           return
         end
 
         if diff_result.changes and #diff_result.changes > 0 then
-          last_applied_diff = diff_result
+          last_applied = {
+            diff = diff_result,
+            orig_win = session.original_win,
+            mod_win = session.modified_win,
+          }
           apply_and_setup(opened_tabpage)
         end
       end
