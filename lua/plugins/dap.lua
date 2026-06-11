@@ -1,5 +1,14 @@
 return {
   {
+    "mason-org/mason.nvim",
+    opts = function(_, opts)
+      opts.ensure_installed = opts.ensure_installed or {}
+      if not vim.tbl_contains(opts.ensure_installed, "debugpy") then
+        table.insert(opts.ensure_installed, "debugpy")
+      end
+    end,
+  },
+  {
     "mfussenegger/nvim-dap",
     dependencies = {
       "nvim-neotest/nvim-nio",
@@ -16,10 +25,8 @@ return {
       require("nvim-dap-virtual-text").setup({
         commented = true, -- Show virtual text alongside comment
       })
-      require("dap-python").setup("uv")
+      dap_python.setup("uv")
       require("dap-python").test_runner = "pytest"
-
-      dap_python.setup("python3")
 
       -- Java DAP configuration (integrated with nvim-java)
       dap.adapters.java = function(callback)
