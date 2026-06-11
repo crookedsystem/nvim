@@ -1,10 +1,10 @@
 return {
-  -- mason-lspconfig 자동 활성화 차단 (kotlin.nvim이 직접 관리)
+  -- JetBrains kotlin-lsp는 Mason 패키지가 안정화될 때까지 끄고, LazyVim 기본 서버를 사용한다.
   {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        kotlin_language_server = { enabled = false },
+        kotlin_language_server = { enabled = true },
         kotlin_lsp = { enabled = false },
       },
     },
