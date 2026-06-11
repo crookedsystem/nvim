@@ -4,20 +4,15 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
+        kotlin_language_server = { enabled = false },
         kotlin_lsp = { enabled = false },
       },
-    },
-  },
-  -- JetBrains kotlin-lsp 자동 설치
-  {
-    "mason-org/mason.nvim",
-    opts = {
-      ensure_installed = { "kotlin-lsp" },
     },
   },
   -- JetBrains kotlin-lsp
   {
     "AlexandrosAlexiou/kotlin.nvim",
+    enabled = false, -- Mason 최신 kotlin-lsp 빌드가 만료되어 자동 시작 시 exit code 7 발생
     ft = { "kotlin" },
     dependencies = {
       "mason-org/mason.nvim",
