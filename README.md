@@ -18,15 +18,17 @@ nvim           # 첫 실행 시 Lazy → Mason이 LSP 자동 설치
 |------|------|-------|--------|
 | ripgrep / fd | 검색 | brew | apt |
 | Node.js | vtsls, prismals 등 Mason LSP | brew | nodesource |
-| Java (JDK) | kotlin_language_server | temurin cask | default-jdk |
+| Java 21/17 (JDK) | kotlin_lsp | temurin@17 cask | openjdk-17-jdk |
 | uv | pylsp 실행 (`uv run --with ...`) | brew | astral.sh |
 
 > **pylsp 참고**: Mason이 설치하지 않음 (`mason = false`). `uv run`이 실행 시점에 자동으로 패키지를 가져옴.
 
 ### Kotlin LSP
 
-- `kotlin_lsp` — JetBrains **공식** 버전 (현재 사용 중)
+- `kotlin_lsp` — JetBrains **공식** 버전, 현재 사용 중
 - `kotlin_language_server` — 커뮤니티 버전 (`fwcd/kotlin-language-server`), 현재 비활성화
+
+Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanrc`, `.tool-versions`를 확인하고, 없으면 설치된 Java 21/17을 자동 선택합니다.
 
 ---
 
@@ -447,7 +449,7 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 | **JSON** | jsonls | schemastore | LazyVim extras |
 | **YAML** | yamlls | - | LazyVim extras |
 | **Docker** | dockerls | - | LazyVim extras |
-| **Kotlin** | kotlin_language_server | - | LazyVim extras |
+| **Kotlin** | kotlin_lsp | - | `lua/plugins/kotlin.lua` |
 | **Scala** | metals | - | LazyVim extras |
 | **TOML** | taplo | - | LazyVim extras |
 
@@ -551,7 +553,7 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 | **JSON** | jsonls | schemastore | LazyVim extras |
 | **YAML** | yamlls | - | LazyVim extras |
 | **Docker** | dockerls | - | LazyVim extras |
-| **Kotlin** | kotlin_language_server | - | LazyVim extras |
+| **Kotlin** | kotlin_lsp | - | `lua/plugins/kotlin.lua` |
 | **Scala** | metals | - | LazyVim extras |
 | **TOML** | taplo | - | LazyVim extras |
 | **Markdown** | ❌ 비활성화 | - | `lua/plugins/markdown.lua` |
