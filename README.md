@@ -3,6 +3,33 @@
 [LazyVim](https://github.com/LazyVim/LazyVim)을 위한 개인 설정 파일입니다.
 자세한 설치 방법은 [공식 문서](https://lazyvim.github.io/installation)를 참고하세요.
 
+## 🚀 새 머신 설치
+
+```bash
+git clone <your-repo> ~/.config/nvim
+cd ~/.config/nvim
+make install   # macOS / Ubuntu 자동 감지
+nvim           # 첫 실행 시 Lazy → Mason이 LSP 자동 설치
+```
+
+`make install`이 설치하는 시스템 의존성:
+
+| 도구 | 용도 | macOS | Ubuntu |
+|------|------|-------|--------|
+| ripgrep / fd | 검색 | brew | apt |
+| Node.js | vtsls, prismals 등 Mason LSP | brew | nodesource |
+| Java (JDK) | kotlin_language_server | temurin cask | default-jdk |
+| uv | pylsp 실행 (`uv run --with ...`) | brew | astral.sh |
+
+> **pylsp 참고**: Mason이 설치하지 않음 (`mason = false`). `uv run`이 실행 시점에 자동으로 패키지를 가져옴.
+
+### Kotlin LSP
+
+- `kotlin_language_server` — Mason 관리, **커뮤니티** 버전 (`fwcd/kotlin-language-server`), Java 필요
+- `kotlin_lsp` — JetBrains **공식** 버전, 현재 비활성화 (Mason 빌드 불안정)
+
+---
+
 ## 🏗️ 커맨드
 
 - **LazyExtras** : 새로운 플러그인 찾을 때 유용
