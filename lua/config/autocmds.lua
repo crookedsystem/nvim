@@ -22,10 +22,26 @@ vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local buf = args.buf
     local opts = { buffer = buf, silent = true }
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Goto Definition" }))
-    vim.keymap.set("n", "gI", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Goto Implementation" }))
-    vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "References" }))
-    vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "Goto Type Definition" }))
+    vim.schedule(function()
+      if not vim.api.nvim_buf_is_loaded(buf) then
+        return
+      end
+
+      vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Goto Definition" }))
+      vim.keymap.set(
+        "n",
+        "gI",
+        vim.lsp.buf.implementation,
+        vim.tbl_extend("force", opts, { desc = "Goto Implementation" })
+      )
+      vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "References" }))
+      vim.keymap.set(
+        "n",
+        "gy",
+        vim.lsp.buf.type_definition,
+        vim.tbl_extend("force", opts, { desc = "Goto Type Definition" })
+      )
+    end)
   end,
 })
 

@@ -17,9 +17,9 @@ if ! command -v node &>/dev/null; then
   sudo apt-get install -y nodejs
 fi
 
-# Java (kotlin_lsp Mason 설치에 필요)
-if ! command -v java &>/dev/null; then
-  sudo apt-get install -y default-jdk
+# Java 21/17 (kotlin_lsp 호환성)
+if ! command -v java &>/dev/null || ! java -version 2>&1 | grep -Eq 'version "(21|17)'; then
+  sudo apt-get install -y openjdk-17-jdk
 fi
 
 # uv (pylsp를 uv run으로 실행)
