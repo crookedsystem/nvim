@@ -25,8 +25,8 @@ nvim           # 첫 실행 시 Lazy → Mason이 LSP 자동 설치
 
 ### Kotlin LSP
 
-- `kotlin_language_server` — Mason 관리, **커뮤니티** 버전 (`fwcd/kotlin-language-server`), Java 필요
-- `kotlin_lsp` — JetBrains **공식** 버전, 현재 비활성화 (Mason 빌드 불안정)
+- `kotlin_lsp` — JetBrains **공식** 버전 (현재 사용 중)
+- `kotlin_language_server` — 커뮤니티 버전 (`fwcd/kotlin-language-server`), 현재 비활성화
 
 ---
 
