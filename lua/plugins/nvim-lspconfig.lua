@@ -14,7 +14,7 @@ return {
         pyright = { enabled = false },
         ruff = { enabled = false },
         pylsp = {
-          -- mypy 타입체킹을 위해 pylsp-mypy와 ruff 추가
+          mason = false, -- uv run으로 실행하므로 Mason이 관리하지 않음
           cmd = {
             "uv",
             "run",
