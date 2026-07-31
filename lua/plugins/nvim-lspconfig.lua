@@ -11,6 +11,14 @@ return {
     opts = {
       servers = {
         prismals = {},
+        dartls = {
+          mason = false,
+          cmd = function(dispatchers, config)
+            return vim.lsp.rpc.start({ "fvm", "dart", "language-server", "--protocol=lsp" }, dispatchers, {
+              cwd = config.root_dir,
+            })
+          end,
+        },
         pyright = { enabled = false },
         ruff = { enabled = false },
         pylsp = {
