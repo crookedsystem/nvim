@@ -11,9 +11,19 @@ return {
       },
     },
     picker = {
+      win = {
+        input = {
+          keys = {
+            ["<a-r>"] = { "toggle_regex", mode = { "i", "n" } },
+          },
+        },
+      },
       sources = {
         files = {
           hidden = true,
+        },
+        grep = {
+          regex = false,
         },
       },
     },

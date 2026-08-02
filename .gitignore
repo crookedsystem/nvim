@@ -12,3 +12,5 @@ lazy-lock.json
 .claude
 .gemini
 .github/prompts
+.Codex/plan/
+.serena/

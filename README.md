@@ -58,6 +58,8 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 | **터미널**        | n    | `:term`        | 현재 창에서 터미널                             |
 |                   | n    | `!{cmd}`       | 외부 명령어 실행                               |
 |                   | t    | `<C-\><C-n>`   | 터미널 → 일반 모드                             |
+| **검색**          | n    | `<leader>/`    | 저장소 문자열 검색 (특수문자 literal 검색)     |
+|                   | pick | `<A-r>`        | literal/regex 검색 모드 전환                    |
 | **디버깅**        | n    | `<leader>dp`   | 브레이크포인트 토글                            |
 |                   | n    | `<leader>dc`   | 디버깅 시작/계속                               |
 |                   | n    | `<leader>do`   | 스텝 오버                                      |
@@ -65,16 +67,15 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 |                   | n    | `<leader>dO`   | 스텝 아웃                                      |
 |                   | n    | `<leader>dq`   | 디버깅 종료                                    |
 |                   | n    | `<leader>du`   | 디버그 UI 토글                                 |
-| **CodeDiff**      | n    | `<leader>gd`   | 현재 파일 Git Diff (side-by-side, 변경 라인만 표시) |
-|                   | n    | `<leader>gi`   | 현재 파일 Git Diff (inline, 변경 라인만 표시)   |
-|                   | n    | `<leader>gD`   | 저장소 Git Diff Explorer (변경 라인만 표시)     |
-|                   | n    | `<leader>gH`   | Git 커밋 히스토리 (변경 라인만 표시)             |
+| **Diffview**      | n    | `<leader>gd`   | 현재 파일을 HEAD와 비교                        |
+|                   | n    | `<leader>gD`   | 저장소 전체 Git Diff                           |
+|                   | n    | `<leader>gH`   | 현재 파일 Git 커밋 히스토리                    |
 |                   | diff | `]c` / `[c`    | 다음/이전 변경 hunk 이동                       |
-|                   | diff | `]f` / `[f`    | 다음/이전 파일 이동                            |
-|                   | diff | `do` / `dp`    | 변경 가져오기/보내기                           |
-|                   | diff | `-`            | 파일 Stage/Unstage 토글                        |
-|                   | diff | `t`            | 레이아웃 전환 (side-by-side/inline)            |
-|                   | diff | `q`            | Diff 뷰 닫기                                  |
+|                   | diff | `<Tab>` / `<S-Tab>` | 다음/이전 파일 이동                       |
+|                   | diff | `<leader>b`    | 파일 패널 표시/숨김                            |
+|                   | diff | `<leader>e`    | 파일 패널로 포커스 이동                        |
+|                   | diff | `g<C-x>`       | Diff 레이아웃 순환                             |
+|                   | diff | `g?`           | 현재 화면의 Diffview 키맵 도움말               |
 | **Claude Code**   | n    | `<leader>ac`   | Claude Code 토글                               |
 |                   | n    | `<leader>af`   | Claude Code 포커스                             |
 |                   | n    | `<leader>ar`   | Claude Code 재개 (Resume)                      |
@@ -119,58 +120,52 @@ opts = {
 3. Oil이나 NvimTree에서 `<leader>as`로 파일 추가
 4. Diff 제안이 나타나면 `<leader>aa`로 승인 또는 `<leader>ad`로 거부
 
-### CodeDiff (Git Diff Viewer)
+### Diffview (Git Diff Viewer & Merge Tool)
 
-**사용 플러그인**: [esmuellert/codediff.nvim](https://github.com/esmuellert/codediff.nvim)
+**사용 플러그인**: [sindrets/diffview.nvim](https://github.com/sindrets/diffview.nvim)
 
-- **의존성**: 없음 (C 라이브러리 자동 다운로드)
-- **요구사항**: Git, curl 또는 wget
+- **의존성**: nvim-lua/plenary.nvim
+- **요구사항**: Git 2.31 이상
 
-VSCode 스타일의 diff 렌더링 플러그인. side-by-side / inline 레이아웃을 모두 지원하고, 라인 수준 + 문자 수준 2단계 하이라이팅, 이동된 코드 감지, 충돌 해결 기능을 제공합니다.
-
-`codediff.nvim`은 Node 기반이 아니라 네이티브 `libvscode_diff` 바이너리를 로드합니다. 따라서 Node 버전은 직접 요구사항이 아닙니다.
+변경 파일을 하나의 탭에서 순회하고 Git merge/rebase 충돌을 3-way 화면으로 해결하는 플러그인입니다. 일반 diff와 파일 이력은 좌우 비교 화면을 사용하고, 충돌 화면은 OURS/THEIRS 위에 편집 결과를 넓게 배치하는 `diff3_mixed` 레이아웃을 사용합니다.
 
 **사용법**:
 
-1. `<leader>gd`로 현재 파일을 새 탭 side-by-side diff로 확인. 미변경 라인은 모두 접고 변경 라인만 바로 보이게 표시됩니다.
-2. `<leader>gi`로 현재 파일을 새 탭 inline diff로 확인. 이 경우에도 미변경 라인은 접힘 처리됩니다.
-3. `<leader>gD`로 저장소 전체 변경사항 explorer를 열기. 파일을 선택하면 diff pane의 미변경 라인이 접힙니다.
-4. `<leader>gH`로 커밋 히스토리 탐색. 파일 diff를 열면 미변경 라인이 접힙니다.
-5. Diff 뷰에서 `]c`/`[c`로 변경 hunk 간 이동
-6. `-`로 파일 Stage/Unstage, `<leader>hs`로 hunk 단위 Stage
-7. `t`로 side-by-side/inline 레이아웃 전환
-8. 접힌 미변경 구간은 `... N unchanged lines folded` 형태로 표시됩니다. 커서를 fold 라인에 두고 `zo`로 열기. 전체 fold를 한 번에 열려면 `zR` 사용
-9. `g?`로 전체 키맵 도움말 확인
-
-현재 버퍼가 일반 파일이 아니거나 Git 저장소 밖이면 `<leader>gd` / `<leader>gi`는 자동으로 저장소 explorer로 fallback 됩니다.
+1. `<leader>gd`로 현재 파일을 HEAD와 비교
+2. `<leader>gD`로 staged, unstaged, conflict 파일을 포함한 저장소 전체 diff 열기
+3. `<leader>gH`로 현재 파일의 커밋 이력 탐색
+4. `<Tab>`/`<S-Tab>`으로 파일을 순회하고 `]c`/`[c`로 hunk 이동
+5. 파일 패널에서 `-`로 선택 파일 Stage/Unstage
+6. `<leader>b`로 파일 패널을 숨기고, `<leader>e`로 다시 포커스
+7. `g<C-x>`로 사용 가능한 diff 레이아웃 순환
+8. `:DiffviewClose`로 현재 Diffview 닫기
 
 **Diff 뷰 주요 키맵**:
 
 | 키맵 | 설명 |
 |------|------|
 | `]c` / `[c` | 다음/이전 변경 hunk |
-| `]f` / `[f` | 다음/이전 파일 |
-| `do` / `dp` | 변경 가져오기/보내기 |
-| `-` | 파일 Stage/Unstage |
-| `<leader>hs` | hunk Stage |
-| `<leader>hu` | hunk Unstage |
-| `<leader>hr` | hunk 버리기 (Discard) |
-| `t` | 레이아웃 전환 |
-| `zo` / `zO` | 접힌 미변경 구간 열기 / 재귀적으로 열기 |
-| `zR` / `zM` | 모든 fold 열기 / 모든 fold 닫기 |
-| `q` | Diff 뷰 닫기 |
+| `<Tab>` / `<S-Tab>` | 다음/이전 파일 |
+| `<leader>b` / `<leader>e` | 파일 패널 토글 / 포커스 |
+| `-` | 파일 패널에서 Stage/Unstage |
+| `gf` | 원래 탭에서 현재 파일 열기 |
+| `g<C-x>` | 레이아웃 순환 |
+| `g?` | 키맵 도움말 |
 
 **충돌 해결 키맵**:
 
 | 키맵 | 설명 |
 |------|------|
-| `<leader>ct` | 들어오는 변경 수락 (Incoming) |
-| `<leader>co` | 현재 변경 유지 (Current) |
-| `<leader>cb` | 양쪽 모두 수락 |
-| `<leader>cx` | 양쪽 모두 버리기 |
+| `<leader>ct` | THEIRS 선택 |
+| `<leader>co` | OURS 선택 |
+| `<leader>cb` | BASE 선택 |
+| `<leader>ca` | 모든 버전 선택 |
+| `dx` | 현재 conflict 영역 삭제 |
 | `]x` / `[x` | 다음/이전 충돌 이동 |
 
-**설정 파일**: `lua/plugins/codediff.lua`
+대문자 버전(`<leader>cO`, `<leader>cT`, `<leader>cB`, `<leader>cA`, `dX`)은 같은 선택을 파일 전체 conflict에 적용합니다.
+
+**설정 파일**: `lua/plugins/diffview.lua`
 
 ### Python
 
@@ -541,7 +536,7 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 | **stevearc/oil.nvim** | 파일 탐색기 | `lua/plugins/oil.lua` |
 | **nvim-java** | Java 개발 환경 | `lua/plugins/java.lua` |
 | **nvim-dap** | 디버깅 지원 | `lua/plugins/dap.lua` |
-| **esmuellert/codediff.nvim** | VSCode 스타일 Git Diff | `lua/plugins/codediff.lua` |
+| **sindrets/diffview.nvim** | Git Diff 및 3-way merge UI | `lua/plugins/diffview.lua` |
 
 ### LSP 서버
 
