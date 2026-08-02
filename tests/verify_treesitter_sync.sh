@@ -5,7 +5,11 @@ repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 
 nvim --headless -u NONE "+lua \
   local spec = dofile('$repo_root/lua/plugins/treesitter.lua')[1] \
-  assert(spec.commit == '7caec274fd19c12b55902a5b795100d21531391f', 'expected Neovim 0.11 compatibility pin') \
+  if vim.fn.has('nvim-0.12') == 0 then \
+    assert(spec.commit == '7caec274fd19c12b55902a5b795100d21531391f', 'expected Neovim 0.11 compatibility pin') \
+  else \
+    assert(spec.commit == nil, 'expected Neovim 0.12+ to follow Treesitter main') \
+  end \
   local update_called = false \
   local wait_called = false \
   package.preload['nvim-treesitter'] = function() \
