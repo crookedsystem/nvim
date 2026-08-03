@@ -40,6 +40,18 @@ local function goto_definition_or_references()
         return
       end
 
+      -- 단일 결과는 vim.lsp.buf.definition()의 기본 동작처럼 바로 이동 (on_list를
+      -- 넘기면 이 점프 로직이 대체되어 버리므로 직접 재현)
+      if #list.items == 1 then
+        local buf = item.bufnr or vim.fn.bufadd(item.filename)
+        vim.cmd("normal! m'")
+        vim.bo[buf].buflisted = true
+        vim.api.nvim_win_set_buf(0, buf)
+        vim.api.nvim_win_set_cursor(0, { item.lnum, item.col - 1 })
+        vim.cmd("normal! zv")
+        return
+      end
+
       vim.fn.setloclist(0, {}, " ", list)
       vim.cmd.lopen()
     end,
