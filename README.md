@@ -60,6 +60,8 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 |                   | t    | `<C-\><C-n>`   | 터미널 → 일반 모드                             |
 | **검색**          | n    | `<leader>/`    | 저장소 문자열 검색 (특수문자 literal 검색)     |
 |                   | pick | `<A-r>`        | literal/regex 검색 모드 전환                    |
+| **검색/치환**     | n    | `<leader>sr`   | grug-far 열기 (여러 줄 붙여넣기 검색/치환)     |
+|                   | v    | `<leader>sr`   | 선택 영역 안에서만 검색/치환 (GrugFarWithin)   |
 | **디버깅**        | n    | `<leader>dp`   | 브레이크포인트 토글                            |
 |                   | n    | `<leader>dc`   | 디버깅 시작/계속                               |
 |                   | n    | `<leader>do`   | 스텝 오버                                      |
@@ -166,6 +168,40 @@ opts = {
 대문자 버전(`<leader>cO`, `<leader>cT`, `<leader>cB`, `<leader>cA`, `dX`)은 같은 선택을 파일 전체 conflict에 적용합니다.
 
 **설정 파일**: `lua/plugins/diffview.lua`
+
+### grug-far.nvim (여러 줄/특수문자 검색 및 치환)
+
+**사용 플러그인**: [MagicDuck/grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim)
+
+Snacks/fzf 계열 피커의 검색창은 항상 버퍼 1번째 줄만 검색어로 읽기 때문에, 여러 줄 코드를 붙여넣으면 첫 줄 이후가 조용히 버려집니다. grug-far는 검색/치환 입력이 일반 멀티라인 버퍼라 이 문제가 애초에 없고, 기본으로 여러 줄 검색·치환(Multiline search & replace)을 지원합니다. 내부적으로 `rg`(기본) 또는 `ast-grep` 엔진을 그대로 사용하고, 결과가 잘못되면 `rg`/`ast-grep`의 실제 에러 메시지를 그대로 보여줍니다.
+
+**사용법**:
+
+1. `<leader>sr`로 grug-far 버퍼 열기 (`GrugFar`)
+2. 비주얼 모드에서 `<leader>sr`을 누르면 선택 영역으로만 범위를 좁혀서 검색/치환 (`GrugFarWithin`)
+3. `Search:` 입력에 검색어(여러 줄 붙여넣기 가능)를 채우면 디바운스로 자동 검색
+4. `Replace:` 입력을 채우면 diff가 표시되고, `<localleader>r`(Replace)로 실제 치환 실행
+5. 결과 줄 위에서 `<enter>`(Goto)로 해당 위치로 이동, `<localleader>o`(Open)는 커서를 유지한 채 열기
+6. `<localleader>c`로 grug-far 버퍼 닫기
+
+> `<localleader>`를 별도로 설정하지 않았다면 기본값은 `\`입니다 (예: `<localleader>r` = `\r`).
+
+**자주 쓰는 키맵** (buftype이 grug-far인 버퍼 안에서, normal 모드):
+
+| 키맵 | 설명 |
+|------|------|
+| `<localleader>r` | Replace 실행 |
+| `<localleader>s` | 결과 영역 편집 내용을 원본 파일에 동기화 (Sync Locations) |
+| `<localleader>e` | 검색 엔진 전환 (ripgrep / astgrep / astgrep-rules) |
+| `<localleader>w` | 실행되는 전체 CLI 커맨드 표시 토글 |
+| `<localleader>t` | 검색 히스토리 열기 |
+| `<localleader>q` | 결과를 quickfix 리스트로 열기 |
+| `<localleader>c` | grug-far 버퍼 닫기 |
+| `g?` | grug-far 키맵 도움말 |
+
+**특수문자를 리터럴로 검색하고 싶을 때**: `Flags:` 입력에 `--fixed-strings`를 추가하면 `{`, `(` 등을 정규식으로 해석하지 않고 그대로 매치합니다. 반대로 정말 여러 줄에 걸친 블록을 원본과 동일한 개행까지 포함해 정확히 매치하려면 `--multiline`을 함께 추가하세요(단, `--multiline` 사용 시 Sync/quickfix 액션은 비활성화되고 `Replace` 액션만 동작합니다).
+
+**설정 파일**: `lua/plugins/grug-far.lua`
 
 ### Python
 
@@ -537,6 +573,7 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 | **nvim-java** | Java 개발 환경 | `lua/plugins/java.lua` |
 | **nvim-dap** | 디버깅 지원 | `lua/plugins/dap.lua` |
 | **sindrets/diffview.nvim** | Git Diff 및 3-way merge UI | `lua/plugins/diffview.lua` |
+| **MagicDuck/grug-far.nvim** | 여러 줄/특수문자 포함 검색·치환 (Find & Replace) | `lua/plugins/grug-far.lua` |
 
 ### LSP 서버
 
