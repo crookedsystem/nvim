@@ -17,6 +17,35 @@ vim.lsp.buf_attach_client = function(bufnr, client_id)
   return original_buf_attach(bufnr, client_id)
 end
 
+-- 정의 위치에서 gd를 누르면(더 갈 곳이 없으면) references로 폴백 (VSCode의
+-- editor.gotoLocation.alternativeDefinitionCommand 기본 동작과 동일)
+local function goto_definition_or_references()
+  local origin_notify = vim.notify
+  vim.notify = function(msg, ...)
+    if msg == "No locations found" then
+      vim.notify = origin_notify
+      vim.lsp.buf.references()
+      return
+    end
+    return origin_notify(msg, ...)
+  end
+
+  vim.lsp.buf.definition({
+    on_list = function(list)
+      vim.notify = origin_notify
+
+      local item = list.items[1]
+      if #list.items == 1 and item.filename == vim.api.nvim_buf_get_name(0) and item.lnum == vim.fn.line(".") then
+        vim.lsp.buf.references()
+        return
+      end
+
+      vim.fn.setloclist(0, {}, " ", list)
+      vim.cmd.lopen()
+    end,
+  })
+end
+
 -- LSP 네비게이션을 vim.lsp.buf 직접 호출로 오버라이드 (buffer-local)
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
@@ -27,7 +56,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
         return
       end
 
-      vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Goto Definition" }))
+      vim.keymap.set(
+        "n",
+        "gd",
+        goto_definition_or_references,
+        vim.tbl_extend("force", opts, { desc = "Goto Definition (or References)" })
+      )
       vim.keymap.set(
         "n",
         "gI",
