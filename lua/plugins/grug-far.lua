@@ -7,8 +7,12 @@ return {
       { "<leader>sr", "<cmd>GrugFarWithin<cr>", mode = "x", desc = "Search and Replace in Selection (grug-far)" },
     },
     opts = {
-      prefills = {
-        flags = "--multiline",
+      engines = {
+        ripgrep = {
+          defaults = {
+            flags = "--multiline",
+          },
+        },
       },
     },
   },
