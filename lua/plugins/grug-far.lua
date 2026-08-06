@@ -9,7 +9,9 @@ return {
     opts = {
       engines = {
         ripgrep = {
-          extraArgs = "--multiline",
+          defaults = {
+            flags = "--multiline",
+          },
         },
       },
     },
