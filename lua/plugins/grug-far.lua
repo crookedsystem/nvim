@@ -6,6 +6,12 @@ return {
       { "<leader>sr", "<cmd>GrugFar<cr>", desc = "Search and Replace (grug-far)" },
       { "<leader>sr", "<cmd>GrugFarWithin<cr>", mode = "x", desc = "Search and Replace in Selection (grug-far)" },
     },
-    opts = {},
+    opts = {
+      engines = {
+        ripgrep = {
+          extraArgs = "--multiline",
+        },
+      },
+    },
   },
 }
