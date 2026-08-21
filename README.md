@@ -93,6 +93,117 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 |                   | n,v  | `<leader>ap`   | 프롬프트 액션 선택                             |
 |                   | chat | `<C-s>`        | 프롬프트 전송                                  |
 
+## 🔍 Diffview 사용 가이드
+
+**사용 플러그인**: [sindrets/diffview.nvim](https://github.com/sindrets/diffview.nvim)
+
+- **의존성**: nvim-lua/plenary.nvim
+- **요구사항**: Git 2.31 이상
+- **설정 파일**: `lua/plugins/diffview.lua`
+
+변경 파일을 하나의 탭에서 순회하고 Git merge/rebase 충돌을 3-way 화면으로 해결하는 플러그인입니다. 일반 diff와 파일 이력은 좌우 비교 화면을 쓰고, 충돌 화면은 OURS/THEIRS 위에 편집 결과를 넓게 배치하는 `diff3_mixed` 레이아웃을 씁니다. 2026-08-02에 LazyVim/snacks.nvim 기본 `<leader>gd`/`gD`/`gi`(git diff picker)를 대체하며 도입했습니다.
+
+### 시나리오별 사용법
+
+**1) 현재 파일만 빠르게 검토**
+
+```
+<leader>gd
+```
+
+`DiffviewOpen HEAD -- %`와 동일합니다. 지금 열려 있는 버퍼를 HEAD와 비교하는 좌우 diff 화면을 엽니다. 파일 하나만 볼 때 저장소 전체 diff보다 빠릅니다.
+
+**2) 저장소 전체 리뷰 (staged + unstaged + conflict)**
+
+```
+<leader>gD
+```
+
+`DiffviewOpen`과 동일합니다. 왼쪽 파일 패널에 변경된 모든 파일이 나열되고, 각 파일을 선택하면 오른쪽에 diff가 뜹니다. `git status`에 걸리는 파일(스테이지 여부 무관, 병합 충돌 포함)이 전부 대상입니다.
+
+**3) 특정 커밋/브랜치 범위 비교**
+
+키맵이 없는 명령형 사용법으로, Command-line에서 `git-rev` 인자를 직접 넘깁니다.
+
+| 명령 | 설명 |
+|------|------|
+| `:DiffviewOpen HEAD~2` | HEAD~2 커밋과 워킹 디렉토리 비교 |
+| `:DiffviewOpen HEAD~2..HEAD` | 두 커밋 사이 변경분만 비교 |
+| `:DiffviewOpen main...feature` | 두 브랜치 사이 변경분 비교 (merge-base 기준) |
+| `:DiffviewOpen HEAD -- lua/plugins` | 특정 경로로 범위 한정 |
+
+리뷰가 끝나면 그냥 `:DiffviewClose` (또는 `q`)로 닫으면 됩니다.
+
+**4) 파일 히스토리(커밋 로그) 탐색**
+
+```
+<leader>gH
+```
+
+`DiffviewFileHistory %`와 동일하게 현재 파일의 커밋 이력을 좌측 로그 패널 + 우측 diff로 보여줍니다. 로그 패널에서 커밋을 선택하면 그 커밋이 해당 파일에 남긴 변경분이 오른쪽에 표시됩니다.
+
+- `:DiffviewFileHistory` — 파일 지정 없이 저장소 전체 히스토리
+- `:DiffviewFileHistory %` — 현재 버퍼만
+- `:DiffviewFileHistory lua/` — 디렉토리 단위 (해당 디렉토리에 영향을 준 커밋만)
+- `:DiffviewFileHistory --range=v1.0.0..HEAD` — 특정 범위로 로그 제한
+- 비주얼 모드에서 라인을 선택하고 `:'<,'>DiffviewFileHistory` — 선택한 줄에 영향을 준 커밋만 필터링
+
+### 파일 패널 / 로그 패널 키맵
+
+| 키맵 | 설명 |
+|------|------|
+| `<Tab>` / `<S-Tab>` | 다음/이전 파일로 이동 |
+| `]c` / `[c` | 다음/이전 변경 hunk로 이동 (diff 창 안에서) |
+| `<leader>b` | 파일 패널 표시/숨김 토글 |
+| `<leader>e` | 파일 패널로 포커스 이동 |
+| `-` | 파일 패널에서 선택 파일 Stage/Unstage |
+| `S` | 모든 파일 Stage |
+| `U` | 모든 Stage 해제 |
+| `X` | 선택 파일 변경 사항 되돌리기 (Restore entry) |
+| `R` | 파일 패널 새로고침 |
+| `cc` | Diffview 안에서 바로 커밋 (커밋 메시지 편집기 열림) |
+| `gf` | 원래 탭에서 현재 파일 열기 |
+| `g<C-x>` | 사용 가능한 diff 레이아웃 순환 |
+| `g?` | 현재 화면(파일 패널/로그/diff)의 키맵 도움말 |
+| `q` | Diffview 닫기 |
+
+### Merge/Rebase 충돌 해결 (3-way)
+
+충돌이 있는 저장소에서 `<leader>gD`(`:DiffviewOpen`)를 실행하면 conflict 상태인 파일이 파일 패널에 표시되고, 선택 시 `diff3_mixed` 레이아웃(OURS / BASE / THEIRS + 편집 결과 창)이 열립니다.
+
+| 키맵 | 설명 |
+|------|------|
+| `<leader>co` | OURS 버전 선택 |
+| `<leader>ct` | THEIRS 버전 선택 |
+| `<leader>cb` | BASE 버전 선택 |
+| `<leader>ca` | 세 버전 모두 선택(순서대로 삽입) |
+| `dx` | 현재 conflict 영역 삭제 |
+| `]x` / `[x` | 다음/이전 충돌 지점으로 이동 |
+
+대문자 버전(`<leader>cO`, `<leader>cT`, `<leader>cB`, `<leader>cA`, `dX`)은 커서 위치의 충돌 하나가 아니라 **파일 전체의 모든 충돌**에 같은 선택을 적용합니다. 해결이 끝난 파일은 파일 패널에서 `-`로 stage하고, 전부 끝나면 평소처럼 `git commit`(또는 `cc` 키맵)으로 마무리합니다.
+
+### 레이아웃 종류
+
+`g<C-x>`로 순환하거나 `opts.view`에서 기본값을 지정합니다 (현재 설정은 아래 세 상황을 구분해 지정되어 있음, `lua/plugins/diffview.lua` 참고).
+
+| 레이아웃 | 적용 대상 (현재 설정) | 설명 |
+|----------|----------------------|------|
+| `diff2_horizontal` | 일반 diff, 파일 히스토리 | 좌우 2-way 비교 |
+| `diff3_mixed` | Merge conflict | OURS/THEIRS 위 + 편집 결과 아래로 넓게 배치, `disable_diagnostics = true`로 LSP 진단 숨김 |
+
+`enhanced_diff_hl = true` 옵션으로 word-diff 하이라이트가 더 세밀하게 표시되도록 설정되어 있습니다.
+
+### 명령어 요약
+
+| 명령 | 설명 |
+|------|------|
+| `:DiffviewOpen [git-rev] [-- path ...]` | Diffview 열기 |
+| `:DiffviewClose` | 현재 Diffview 닫기 |
+| `:DiffviewToggleFiles` | 파일 패널 토글 |
+| `:DiffviewFocusFiles` | 파일 패널로 포커스 이동 |
+| `:DiffviewRefresh` | git 상태 다시 읽어서 새로고침 (외부에서 커밋/스테이지 변경 시) |
+| `:DiffviewFileHistory [paths] [flags]` | 파일/디렉토리/저장소 커밋 이력 열기 |
+
 ## 🧭 Config
 
 ### Claude Code
@@ -121,53 +232,6 @@ opts = {
 2. Visual 모드에서 코드 선택 후 `<leader>as`로 전송
 3. Oil이나 NvimTree에서 `<leader>as`로 파일 추가
 4. Diff 제안이 나타나면 `<leader>aa`로 승인 또는 `<leader>ad`로 거부
-
-### Diffview (Git Diff Viewer & Merge Tool)
-
-**사용 플러그인**: [sindrets/diffview.nvim](https://github.com/sindrets/diffview.nvim)
-
-- **의존성**: nvim-lua/plenary.nvim
-- **요구사항**: Git 2.31 이상
-
-변경 파일을 하나의 탭에서 순회하고 Git merge/rebase 충돌을 3-way 화면으로 해결하는 플러그인입니다. 일반 diff와 파일 이력은 좌우 비교 화면을 사용하고, 충돌 화면은 OURS/THEIRS 위에 편집 결과를 넓게 배치하는 `diff3_mixed` 레이아웃을 사용합니다.
-
-**사용법**:
-
-1. `<leader>gd`로 현재 파일을 HEAD와 비교
-2. `<leader>gD`로 staged, unstaged, conflict 파일을 포함한 저장소 전체 diff 열기
-3. `<leader>gH`로 현재 파일의 커밋 이력 탐색
-4. `<Tab>`/`<S-Tab>`으로 파일을 순회하고 `]c`/`[c`로 hunk 이동
-5. 파일 패널에서 `-`로 선택 파일 Stage/Unstage
-6. `<leader>b`로 파일 패널을 숨기고, `<leader>e`로 다시 포커스
-7. `g<C-x>`로 사용 가능한 diff 레이아웃 순환
-8. `:DiffviewClose`로 현재 Diffview 닫기
-
-**Diff 뷰 주요 키맵**:
-
-| 키맵 | 설명 |
-|------|------|
-| `]c` / `[c` | 다음/이전 변경 hunk |
-| `<Tab>` / `<S-Tab>` | 다음/이전 파일 |
-| `<leader>b` / `<leader>e` | 파일 패널 토글 / 포커스 |
-| `-` | 파일 패널에서 Stage/Unstage |
-| `gf` | 원래 탭에서 현재 파일 열기 |
-| `g<C-x>` | 레이아웃 순환 |
-| `g?` | 키맵 도움말 |
-
-**충돌 해결 키맵**:
-
-| 키맵 | 설명 |
-|------|------|
-| `<leader>ct` | THEIRS 선택 |
-| `<leader>co` | OURS 선택 |
-| `<leader>cb` | BASE 선택 |
-| `<leader>ca` | 모든 버전 선택 |
-| `dx` | 현재 conflict 영역 삭제 |
-| `]x` / `[x` | 다음/이전 충돌 이동 |
-
-대문자 버전(`<leader>cO`, `<leader>cT`, `<leader>cB`, `<leader>cA`, `dX`)은 같은 선택을 파일 전체 conflict에 적용합니다.
-
-**설정 파일**: `lua/plugins/diffview.lua`
 
 ### grug-far.nvim (여러 줄/특수문자 검색 및 치환)
 
