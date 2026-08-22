@@ -36,4 +36,4 @@ if ! command -v uv &>/dev/null; then
   done
 fi
 
-echo "=== Done. Open nvim — Mason will auto-install the rest ==="
+echo "=== Deps installed ==="
