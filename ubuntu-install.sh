@@ -17,9 +17,10 @@ if ! command -v node &>/dev/null; then
   sudo apt-get install -y nodejs
 fi
 
-# Java 21/17 (kotlin_lsp 호환성)
-if ! command -v java &>/dev/null || ! java -version 2>&1 | grep -Eq 'version "(21|17)'; then
-  sudo apt-get install -y openjdk-17-jdk
+# Java 21+ (jdtls는 21 미만에서 기동 실패, kotlin_lsp도 21에서 동작)
+java_major="$(java -version 2>&1 | sed -n 's/.*version "\([0-9]\{1,\}\).*/\1/p' | head -1)"
+if [ -z "$java_major" ] || [ "$java_major" -lt 21 ]; then
+  sudo apt-get install -y openjdk-21-jdk
 fi
 
 # uv (pylsp를 uv run으로 실행)

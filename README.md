@@ -18,7 +18,7 @@ nvim           # 첫 실행 시 Lazy → Mason이 LSP 자동 설치
 |------|------|-------|--------|
 | ripgrep / fd | 검색 | brew | apt |
 | Node.js | vtsls, prismals 등 Mason LSP | brew | nodesource |
-| Java 21/17 (JDK) | kotlin_lsp | temurin@17 cask | openjdk-17-jdk |
+| Java 21+ (JDK) | jdtls, kotlin_lsp | temurin@21 cask | openjdk-21-jdk |
 | uv | pylsp 실행 (`uv run --with ...`) | brew | astral.sh |
 
 > **pylsp 참고**: Mason이 설치하지 않음 (`mason = false`). `uv run`이 실행 시점에 자동으로 패키지를 가져옴.
