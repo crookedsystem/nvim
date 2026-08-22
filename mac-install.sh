@@ -14,4 +14,4 @@ command -v node &>/dev/null || brew install node
 # uv (pylsp를 uv run으로 실행)
 command -v uv &>/dev/null || brew install uv
 
-echo "=== Done. Open nvim — Mason will auto-install the rest ==="
+echo "=== Deps installed ==="

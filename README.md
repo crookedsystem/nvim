@@ -8,11 +8,17 @@
 ```bash
 git clone <your-repo> ~/.config/nvim
 cd ~/.config/nvim
-make install   # macOS / Ubuntu 자동 감지
-nvim           # 첫 실행 시 Lazy → Mason이 LSP 자동 설치
+make install   # macOS / Ubuntu 자동 감지 (deps + mason)
+nvim           # 첫 실행 시 Lazy → Mason이 나머지 LSP 자동 설치
 ```
 
-`make install`이 설치하는 시스템 의존성:
+| 타깃 | 하는 일 |
+|------|---------|
+| `make install` | `deps` + `mason` |
+| `make deps` | 시스템 의존성만 설치 (아래 표) |
+| `make mason` | Mason 레지스트리 갱신 + kotlin-lsp 재설치 |
+
+`make deps`가 설치하는 시스템 의존성:
 
 | 도구 | 용도 | macOS | Ubuntu |
 |------|------|-------|--------|
@@ -29,6 +35,11 @@ nvim           # 첫 실행 시 Lazy → Mason이 LSP 자동 설치
 - `kotlin_language_server` — 커뮤니티 버전 (`fwcd/kotlin-language-server`), 현재 비활성화
 
 Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanrc`, `.tool-versions`를 확인하고, 없으면 설치된 Java 21/17을 자동 선택합니다.
+
+> **빌드 만료 주의**: `kotlin_lsp`의 실체인 JetBrains `intellij-server`는 빌드마다 만료일이 있습니다.
+> 만료되면 서버가 기동 직후 `This build of intellij-server has expired`를 남기고 **exit code 7**로 죽어
+> `Client kotlin_lsp quit with exit code 7`이 뜹니다. `ensure_installed`는 "설치돼 있으면 통과"라 갱신되지
+> 않으므로, 이때는 `make mason`(= `:MasonUpdate` + `:MasonInstall kotlin-lsp`)으로 새 빌드를 받으세요.
 
 ---
 
