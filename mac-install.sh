@@ -8,8 +8,8 @@ brew install ripgrep fd fzf
 # Node.js (vtsls, prismals 등 Mason LSP)
 command -v node &>/dev/null || brew install node
 
-# Java 21/17 (kotlin_lsp compatibility)
-/usr/libexec/java_home -v 21 &>/dev/null || /usr/libexec/java_home -v 17 &>/dev/null || brew install --cask temurin@17
+# Java 21+ (jdtls는 21 미만에서 기동 실패, kotlin_lsp도 21에서 동작)
+/usr/libexec/java_home -v 21+ &>/dev/null || brew install --cask temurin@21
 
 # uv (pylsp를 uv run으로 실행)
 command -v uv &>/dev/null || brew install uv
