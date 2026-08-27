@@ -80,15 +80,15 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 |                   | n    | `<leader>dO`   | 스텝 아웃                                      |
 |                   | n    | `<leader>dq`   | 디버깅 종료                                    |
 |                   | n    | `<leader>du`   | 디버그 UI 토글                                 |
-| **Fugitive**      | n    | `<leader>gD`   | Git status 버퍼 (변경 파일 목록·스테이징·커밋) |
-|                   | n    | `<leader>gd`   | 현재 파일을 index/HEAD와 좌우 비교             |
-|                   | n    | `<leader>gH`   | 현재 파일 커밋 이력 (quickfix)                 |
-|                   | git  | `s` / `u`      | 커서 위치 파일·hunk 스테이지/언스테이지        |
-|                   | git  | `=`            | 커서 위치 파일의 inline diff 펼치기/접기       |
-|                   | git  | `cc`           | 커밋                                           |
+| **Diffview**      | n    | `<leader>gd`   | 현재 파일을 HEAD와 비교                        |
+|                   | n    | `<leader>gD`   | 저장소 전체 Git Diff                           |
+|                   | n    | `<leader>gH`   | 현재 파일 Git 커밋 히스토리                    |
 |                   | diff | `]c` / `[c`    | 다음/이전 변경 hunk 이동                       |
-|                   | diff | `do` / `dp`    | hunk 가져오기 / 반대편으로 보내기              |
-|                   | git  | `g?`           | 현재 Fugitive 화면의 키맵 도움말               |
+|                   | diff | `<Tab>` / `<S-Tab>` | 다음/이전 파일 이동                       |
+|                   | diff | `<leader>b`    | 파일 패널 표시/숨김                            |
+|                   | diff | `<leader>e`    | 파일 패널로 포커스 이동                        |
+|                   | diff | `g<C-x>`       | Diff 레이아웃 순환                             |
+|                   | diff | `g?`           | 현재 화면의 Diffview 키맵 도움말               |
 | **Claude Code**   | n    | `<leader>ac`   | Claude Code 토글                               |
 |                   | n    | `<leader>af`   | Claude Code 포커스                             |
 |                   | n    | `<leader>ar`   | Claude Code 재개 (Resume)                      |
@@ -104,79 +104,46 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 |                   | n,v  | `<leader>ap`   | 프롬프트 액션 선택                             |
 |                   | chat | `<C-s>`        | 프롬프트 전송                                  |
 
-## 🔍 Fugitive 사용 가이드
+## 🔍 Diffview 사용 가이드
 
-**사용 플러그인**: [tpope/vim-fugitive](https://github.com/tpope/vim-fugitive)
+**사용 플러그인**: [sindrets/diffview.nvim](https://github.com/sindrets/diffview.nvim)
 
-- **의존성**: 없음
-- **요구사항**: Git (버전 제약 없음)
-- **설정 파일**: `lua/plugins/fugitive.lua`
+- **의존성**: nvim-lua/plenary.nvim
+- **요구사항**: Git 2.31 이상
+- **설정 파일**: `lua/plugins/diffview.lua`
 
-Neovim 안에서 Git을 그대로 실행하는 플러그인입니다. `:Git <아무 서브커맨드>`가 전부 동작하고, 인자 없는 `:Git`은 `git status`를 그대로 옮긴 **summary 버퍼**를 엽니다. 스테이징·diff·커밋·리베이스·스태시를 모두 그 한 버퍼 안에서 키 한두 개로 처리합니다. 2026-08-23에 `sindrets/diffview.nvim`을 대체하며 도입했습니다.
-
-### diffview에서 무엇이 달라지는가
-
-Fugitive는 diff 전용 뷰어가 아니라 Git 클라이언트입니다. diffview의 "왼쪽 파일 패널 + 한 탭에서 파일 순회" 화면은 없어지고, status 버퍼가 그 자리를 대신합니다. 화면 감각이 바뀌는 지점을 먼저 정리합니다.
-
-| 예전 (diffview) | 지금 (fugitive) |
-|---|---|
-| `<leader>gD` → 파일 패널 + 우측 diff | `<leader>gD` → status 버퍼, `=`로 파일마다 inline diff 펼침 |
-| 파일 패널에서 `<Tab>`으로 파일 순회 | status 버퍼에서 `]/` · `[/`로 파일 순회 |
-| 파일 패널에서 `-` 스테이지 | status 버퍼에서 `s` · `u` · `-` (hunk 단위도 가능) |
-| `<leader>co` · `<leader>ct` 충돌 해결 | `d2o` · `d3o` |
-| `<leader>gH` → 전용 히스토리 패널 | `<leader>gH` → quickfix 리스트 |
-| `:DiffviewOpen main...feature` | `:Git difftool -y main...feature` |
-| `cc` 커밋 | `cc` 커밋 (동일) |
-
-**얻은 것**: 스테이징 이후 커밋·리베이스·스태시·revert까지 같은 버퍼에서 끝나고, hunk 단위 스테이징(`s`를 diff 라인 위에서)이 별도 플러그인 없이 됩니다. 유지보수도 활발합니다.
-**잃은 것**: 변경 파일 전체를 좌우 2-way 화면으로 훑는 전용 UI가 없습니다. 그 감각이 필요하면 아래 `:Git difftool -y`를 쓰세요.
+변경 파일을 하나의 탭에서 순회하고 Git merge/rebase 충돌을 3-way 화면으로 해결하는 플러그인입니다. 일반 diff와 파일 이력은 좌우 비교 화면을 쓰고, 충돌 화면은 OURS/THEIRS 위에 편집 결과를 넓게 배치하는 `diff3_mixed` 레이아웃을 씁니다. 2026-08-02에 LazyVim/snacks.nvim 기본 `<leader>gd`/`gD`/`gi`(git diff picker)를 대체하며 도입했습니다.
 
 ### 시나리오별 사용법
 
-**1) 저장소 전체 리뷰 — status 버퍼**
-
-```
-<leader>gD
-```
-
-`:Git`과 동일합니다. `git status`의 섹션 구조(Unstaged / Staged / Untracked / Unpushed / Unpulled)를 그대로 버퍼로 보여줍니다. 여기서 커서를 파일 위에 두고:
-
-- `=` — 그 파일의 diff를 **파일 목록 사이에 펼쳐서** 보여줍니다. 다시 누르면 접힙니다.
-- `dv` — 그 파일을 좌우 2-way diff 창으로 엽니다.
-- `s` / `u` — 스테이지 / 언스테이지. diff를 펼친 상태에서 hunk 라인 위에 두고 누르면 **hunk 단위**로 처리됩니다. 비주얼 모드로 여러 줄을 잡으면 그 범위만 스테이징됩니다.
-- `cc` — 커밋 메시지 편집기를 엽니다. 저장하고 닫으면 커밋됩니다.
-
-버퍼를 닫을 때는 `gq`입니다. 이미 열려 있는 상태에서 `<leader>gD`를 다시 누르면 새로 열지 않고 그 창으로 포커스만 이동합니다.
-
-**2) 현재 파일만 빠르게 검토**
+**1) 현재 파일만 빠르게 검토**
 
 ```
 <leader>gd
 ```
 
-`:Gvdiffsplit`과 동일합니다. 지금 버퍼를 index(스테이징 영역) 버전과 좌우로 비교합니다. 작업본은 항상 오른쪽에 놓입니다. 여기서는 Vim 기본 diff 키가 그대로 쓰입니다.
+`DiffviewOpen HEAD -- %`와 동일합니다. 지금 열려 있는 버퍼를 HEAD와 비교하는 좌우 diff 화면을 엽니다. 파일 하나만 볼 때 저장소 전체 diff보다 빠릅니다.
 
-- `]c` / `[c` — 다음/이전 hunk로 이동
-- `do` — 반대편 hunk를 이쪽으로 가져오기 (diff obtain)
-- `dp` — 이쪽 hunk를 반대편으로 보내기 (diff put). index 쪽으로 보내면 그게 곧 부분 스테이징입니다.
-- `:Gdiffsplit HEAD` — index가 아니라 HEAD와 비교하고 싶을 때
-- `:Gdiffsplit HEAD~3` — 특정 커밋 시점과 비교
+**2) 저장소 전체 리뷰 (staged + unstaged + conflict)**
 
-diff 창을 정리할 때는 `dq`(모든 diff 창을 닫고 `diffoff!`)를 씁니다.
+```
+<leader>gD
+```
+
+`DiffviewOpen`과 동일합니다. 왼쪽 파일 패널에 변경된 모든 파일이 나열되고, 각 파일을 선택하면 오른쪽에 diff가 뜹니다. `git status`에 걸리는 파일(스테이지 여부 무관, 병합 충돌 포함)이 전부 대상입니다.
 
 **3) 특정 커밋/브랜치 범위 비교**
 
-diffview의 파일 순회에 가장 가까운 형태입니다. 변경된 파일을 **각각 새 탭**으로 열고 파일마다 diff 창을 띄웁니다.
+키맵이 없는 명령형 사용법으로, Command-line에서 `git-rev` 인자를 직접 넘깁니다.
 
 | 명령 | 설명 |
 |------|------|
-| `:Git difftool -y` | 변경 파일을 전부 탭으로 열고 각각 diff |
-| `:Git difftool -y HEAD~2` | HEAD~2와 작업본 비교 |
-| `:Git difftool -y main...feature` | 두 브랜치 변경분 비교 (merge-base 기준) |
-| `:Git difftool -y HEAD -- lua/plugins` | 특정 경로로 범위 한정 |
-| `:Git difftool` | `-y` 없이 쓰면 탭 대신 **quickfix**에 hunk 단위로 적재 |
+| `:DiffviewOpen HEAD~2` | HEAD~2 커밋과 워킹 디렉토리 비교 |
+| `:DiffviewOpen HEAD~2..HEAD` | 두 커밋 사이 변경분만 비교 |
+| `:DiffviewOpen main...feature` | 두 브랜치 사이 변경분 비교 (merge-base 기준) |
+| `:DiffviewOpen HEAD -- lua/plugins` | 특정 경로로 범위 한정 |
 
-탭 사이 이동은 `gt` / `gT`입니다. `-y` 없는 형태는 hunk마다 quickfix 항목이 하나씩 생기므로, 변경 지점을 `]q` / `[q`로 하나씩 훑고 싶을 때 유용합니다.
+리뷰가 끝나면 그냥 `:DiffviewClose` (또는 `q`)로 닫으면 됩니다.
 
 **4) 파일 히스토리(커밋 로그) 탐색**
 
@@ -184,168 +151,69 @@ diffview의 파일 순회에 가장 가까운 형태입니다. 변경된 파일�
 <leader>gH
 ```
 
-`:0Gclog`와 동일합니다. 현재 파일을 건드린 커밋들을 quickfix 리스트에 적재하고, 각 항목은 그 커밋의 첫 diff hunk를 가리킵니다.
+`DiffviewFileHistory %`와 동일하게 현재 파일의 커밋 이력을 좌측 로그 패널 + 우측 diff로 보여줍니다. 로그 패널에서 커밋을 선택하면 그 커밋이 해당 파일에 남긴 변경분이 오른쪽에 표시됩니다.
 
-- `:Gclog` — 저장소 전체 커밋 이력
-- `:{range}Gclog` — 선택한 줄 범위에 영향을 준 커밋만 (`git log -L`)
-- `:Gllog` — quickfix 대신 location list 사용
+- `:DiffviewFileHistory` — 파일 지정 없이 저장소 전체 히스토리
+- `:DiffviewFileHistory %` — 현재 버퍼만
+- `:DiffviewFileHistory lua/` — 디렉토리 단위 (해당 디렉토리에 영향을 준 커밋만)
+- `:DiffviewFileHistory --range=v1.0.0..HEAD` — 특정 범위로 로그 제한
+- 비주얼 모드에서 라인을 선택하고 `:'<,'>DiffviewFileHistory` — 선택한 줄에 영향을 준 커밋만 필터링
 
-> quickfix는 항목이 많아지면 눈에 띄게 느려집니다. 저장소 전체 이력을 넓게 훑을 때는 `:Git log --oneline`으로 로그를 버퍼에 띄우고 커밋 해시 위에서 `<CR>`을 눌러 들어가는 편이 빠릅니다.
+### 파일 패널 / 로그 패널 키맵
 
-**5) blame으로 이 줄이 왜 이렇게 됐는지 추적**
-
-```
-:Git blame
-```
-
-현재 파일의 blame을 스크롤이 연동된 좌측 세로 분할로 엽니다.
-
-| 키 | 설명 |
+| 키맵 | 설명 |
 |------|------|
-| `<CR>` | blame을 닫고 그 줄을 만든 커밋의 patch로 이동 |
-| `o` / `O` | 커밋을 가로 분할 / 새 탭으로 열기 |
-| `p` | preview 창으로 열기 |
-| `-` | 커서 위치 커밋 시점으로 다시 blame (reblame) |
-| `A` / `C` / `D` | author / commit / date 컬럼 너비에 맞춰 리사이즈 |
-| `gq` | blame 닫고 작업본으로 복귀 |
-
-한 줄의 유래를 계속 파고들 때는 `-`로 reblame을 반복하는 대신, `<CR>`로 커밋에 들어가서 해당 `-` 라인 위에서 `<CR>`을 두 번 더 누르는 쪽이 정확합니다. 그래야 그 줄이 왜 바뀌었는지 맥락까지 같이 보입니다.
-
-비주얼 모드로 범위를 잡고 `:'<,'>Git blame`을 하면 그 범위만 blame합니다.
-
-### Status 버퍼 키맵
-
-`<leader>gD`로 연 버퍼에서 쓰는 키입니다. 전체 목록은 그 버퍼에서 `g?`를 누르면 나옵니다.
-
-**스테이징**
-
-| 키 | 설명 |
-|------|------|
-| `s` | 커서 위치 파일·hunk 스테이지 (`git add`) |
-| `u` | 커서 위치 파일·hunk 언스테이지 (`git reset`) |
-| `-` | 스테이지/언스테이지 토글 |
-| `U` | 전부 언스테이지 |
-| `X` | 커서 위치 변경 버리기 (`checkout`/`clean`). 되돌리는 명령이 echo되므로 `:messages`로 확인 가능 |
-| `=` | 커서 위치 파일의 inline diff 토글 |
-| `>` / `<` | inline diff 펼치기 / 접기 |
-| `I` | `git add --patch` / `reset --patch` 대화형 실행 |
-| `gI` | `.git/info/exclude`에 커서 위치 파일 추가 (count를 주면 `.gitignore`) |
-
-**이동**
-
-| 키 | 설명 |
-|------|------|
-| `]c` / `[c` | 다음/이전 hunk (inline diff 자동으로 펼침) |
-| `]/` `]m` / `[/` `[m` | 다음/이전 **파일** (inline diff 자동으로 접음) |
-| `)` / `(` | 다음/이전 파일·hunk·리비전 |
-| `]]` / `[[` | 다음/이전 섹션 |
-| `gu` / `gs` | Unstaged / Staged 섹션으로 점프 |
-| `gp` / `gP` | Unpushed / Unpulled 섹션으로 점프 |
-| `<CR>` | 커서 위치 파일 열기 |
-| `o` / `gO` / `O` / `p` | 가로 분할 / 세로 분할 / 새 탭 / preview로 열기 |
-| `dd` / `dv` / `dh` | 커서 위치 파일을 분할 diff / 좌우 diff / 상하 diff로 열기 |
-| `dq` | 모든 diff 창 닫기 |
-| `gq` | status 버퍼 닫기 |
-
-**커밋**
-
-| 키 | 설명 |
-|------|------|
-| `cc` | 커밋 |
-| `ca` | 직전 커밋 amend + 메시지 편집 |
-| `ce` | 직전 커밋 amend (메시지 그대로) |
-| `cw` | 직전 커밋 메시지만 수정 (reword) |
-| `cf` / `cs` | 커서 위치 커밋에 대한 `fixup!` / `squash!` 커밋 생성 |
-| `cF` / `cS` | 위와 동일하되 곧바로 autosquash 리베이스 실행 |
-| `crc` | 커서 위치 커밋 revert |
-| `c<Space>` | 명령행에 `:Git commit ` 채워넣기 |
-
-**브랜치 · 스태시**
-
-| 키 | 설명 |
-|------|------|
-| `coo` | 커서 위치 커밋 체크아웃 |
-| `co<Space>` / `cb<Space>` | 명령행에 `:Git checkout ` / `:Git branch ` 채워넣기 |
-| `czz` | 스태시 push (count 1이면 `--include-untracked`, 2면 `--all`) |
-| `czw` | 작업본만 스태시 (`--keep-index`) |
-| `czP` / `czp` | 최상단 스태시 pop (뒤쪽은 index 보존) |
-| `czA` / `cza` | 최상단 스태시 apply (뒤쪽은 index 보존) |
-
-**리베이스**
-
-| 키 | 설명 |
-|------|------|
-| `ri` | 커서 위치 커밋의 부모를 기준으로 대화형 리베이스 |
-| `ru` / `rp` | `@{upstream}` / `@{push}` 기준 대화형 리베이스 |
-| `rf` | todo 편집 없이 autosquash 리베이스 |
-| `rr` / `rs` / `ra` | 진행 중인 리베이스 계속 / 현재 커밋 건너뛰기 / 중단 |
-| `rw` / `rm` / `rd` | 커서 위치 커밋을 reword / edit / drop으로 지정해 리베이스 |
+| `<Tab>` / `<S-Tab>` | 다음/이전 파일로 이동 |
+| `]c` / `[c` | 다음/이전 변경 hunk로 이동 (diff 창 안에서) |
+| `<leader>b` | 파일 패널 표시/숨김 토글 |
+| `<leader>e` | 파일 패널로 포커스 이동 |
+| `-` | 파일 패널에서 선택 파일 Stage/Unstage |
+| `S` | 모든 파일 Stage |
+| `U` | 모든 Stage 해제 |
+| `X` | 선택 파일 변경 사항 되돌리기 (Restore entry) |
+| `R` | 파일 패널 새로고침 |
+| `cc` | Diffview 안에서 바로 커밋 (커밋 메시지 편집기 열림) |
+| `gf` | 원래 탭에서 현재 파일 열기 |
+| `g<C-x>` | 사용 가능한 diff 레이아웃 순환 |
+| `g?` | 현재 화면(파일 패널/로그/diff)의 키맵 도움말 |
+| `q` | Diffview 닫기 |
 
 ### Merge/Rebase 충돌 해결 (3-way)
 
-충돌이 나면 `<leader>gD`의 status 버퍼에 `Unmerged` 섹션이 생깁니다. 해결 흐름은 다음과 같습니다.
+충돌이 있는 저장소에서 `<leader>gD`(`:DiffviewOpen`)를 실행하면 conflict 상태인 파일이 파일 패널에 표시되고, 선택 시 `diff3_mixed` 레이아웃(OURS / BASE / THEIRS + 편집 결과 창)이 열립니다.
 
-먼저 충돌 파일을 열고 3-way diff를 띄웁니다.
-
-```
-:Gdiffsplit!
-```
-
-인자 없는 `!` 형태는 모든 직계 조상과 diff하므로, 충돌 중에는 **ours / theirs 두 조상 + 작업본** 3창이 뜹니다. 포커스는 작업본에 남습니다.
-
-| 키 | 설명 |
+| 키맵 | 설명 |
 |------|------|
-| `d2o` | 커서 위치 hunk를 **ours**(현재 브랜치) 쪽으로 확정 |
-| `d3o` | 커서 위치 hunk를 **theirs**(들어오는 브랜치) 쪽으로 확정 |
-| `]c` / `[c` | 다음/이전 충돌 hunk로 이동 |
-| `dq` | diff 창 정리 |
+| `<leader>co` | OURS 버전 선택 |
+| `<leader>ct` | THEIRS 버전 선택 |
+| `<leader>cb` | BASE 버전 선택 |
+| `<leader>ca` | 세 버전 모두 선택(순서대로 삽입) |
+| `dx` | 현재 conflict 영역 삭제 |
+| `]x` / `[x` | 다음/이전 충돌 지점으로 이동 |
 
-파일 전체를 한쪽으로 통째로 밀어버릴 때는 status 버퍼에서 `2X`(= `checkout --ours`) 또는 `3X`(= `checkout --theirs`)를 씁니다.
+대문자 버전(`<leader>cO`, `<leader>cT`, `<leader>cB`, `<leader>cA`, `dX`)은 커서 위치의 충돌 하나가 아니라 **파일 전체의 모든 충돌**에 같은 선택을 적용합니다. 해결이 끝난 파일은 파일 패널에서 `-`로 stage하고, 전부 끝나면 평소처럼 `git commit`(또는 `cc` 키맵)으로 마무리합니다.
 
-충돌 파일이 여러 개면 quickfix로 몰아서 처리할 수 있습니다.
+### 레이아웃 종류
 
-```
-:Git mergetool
-```
+`g<C-x>`로 순환하거나 `opts.view`에서 기본값을 지정합니다 (현재 설정은 아래 세 상황을 구분해 지정되어 있음, `lua/plugins/diffview.lua` 참고).
 
-`:Git difftool`과 같은 방식으로 충돌 지점을 quickfix에 적재합니다. `-y`를 붙이면 파일마다 탭 + 3-way diff로 엽니다.
+| 레이아웃 | 적용 대상 (현재 설정) | 설명 |
+|----------|----------------------|------|
+| `diff2_horizontal` | 일반 diff, 파일 히스토리 | 좌우 2-way 비교 |
+| `diff3_mixed` | Merge conflict | OURS/THEIRS 위 + 편집 결과 아래로 넓게 배치, `disable_diagnostics = true`로 LSP 진단 숨김 |
 
-해결이 끝난 파일은 `:Gwrite`(= `git add`)로 스테이지하고, 전부 끝나면 status 버퍼에서 `cc`로 커밋합니다.
-
-### 임의 git 명령 실행
-
-Fugitive의 본질은 `:Git`이 곧 `git`이라는 점입니다. 서브커맨드에 따라 결과를 다루는 방식만 달라집니다.
-
-| 명령 | 설명 |
-|------|------|
-| `:Git push` | 그대로 실행하고 출력을 보여줌 (pty를 쓰므로 진행률 표시도 나옴) |
-| `:Git! push` | 백그라운드로 실행하고 출력을 preview 창에 스트리밍 |
-| `:Git -p log -p` | 출력을 임시 파일로 받아 분할 창에 띄움 (`diff`/`log`는 자동으로 이 모드) |
-| `:{range}Git! -p log --oneline` | 명령 출력을 현재 버퍼의 `{range}` 뒤에 삽입 |
-
-커밋 메시지처럼 명령이 편집기를 요구하면 분할 창으로 열리고, 그 창을 닫으면 명령이 이어서 진행됩니다.
+`enhanced_diff_hl = true` 옵션으로 word-diff 하이라이트가 더 세밀하게 표시되도록 설정되어 있습니다.
 
 ### 명령어 요약
 
 | 명령 | 설명 |
 |------|------|
-| `:Git` (`:G`) | status summary 버퍼 열기 |
-| `:Git {args}` | 임의 git 명령 실행 |
-| `:Gvdiffsplit [object]` | 좌우 2-way diff |
-| `:Ghdiffsplit [object]` | 상하 2-way diff |
-| `:Gdiffsplit! [object]` | 모든 직계 조상과 diff (충돌 시 3-way) |
-| `:Git difftool [-y] [args]` | 변경분을 quickfix로 (`-y`면 탭 + diff) |
-| `:Git mergetool [-y] [args]` | 충돌 지점을 quickfix로 (`-y`면 탭 + 3-way) |
-| `:Gclog [args]` / `:0Gclog` | 커밋 이력을 quickfix로 (`:0Gclog`는 현재 파일 전체) |
-| `:Git blame [flags]` | 스크롤 연동 blame 열기 |
-| `:Gedit [object]` | 특정 리비전의 파일 열기 (`:Gedit HEAD~2:%`) |
-| `:Gread [object]` | 현재 버퍼를 특정 리비전 내용으로 교체 (디스크에는 안 씀) |
-| `:Gwrite` | 현재 파일을 저장하고 스테이지 (`git add`) |
-| `:Ggrep [args]` | `git grep` 결과를 quickfix로 |
-| `:GMove` / `:GRename` / `:GDelete` | `git mv` / `git rm` 후 버퍼까지 정리 |
-| `:Gcd` / `:Glcd` | 저장소 루트 기준으로 `:cd` / `:lcd` |
-
-`:Gedit`·`:Gread` 등이 받는 `object`는 `HEAD`, `HEAD~2:%`, `:0:%`(index 버전), `main:README.md` 같은 Git 리비전 표기를 그대로 씁니다. 명령행에서 `<C-R><C-G>`를 누르면 현재 버퍼의 object 경로가 삽입됩니다.
+| `:DiffviewOpen [git-rev] [-- path ...]` | Diffview 열기 |
+| `:DiffviewClose` | 현재 Diffview 닫기 |
+| `:DiffviewToggleFiles` | 파일 패널 토글 |
+| `:DiffviewFocusFiles` | 파일 패널로 포커스 이동 |
+| `:DiffviewRefresh` | git 상태 다시 읽어서 새로고침 (외부에서 커밋/스테이지 변경 시) |
+| `:DiffviewFileHistory [paths] [flags]` | 파일/디렉토리/저장소 커밋 이력 열기 |
 
 ## 🧭 Config
 
@@ -779,7 +647,7 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 | **stevearc/oil.nvim** | 파일 탐색기 | `lua/plugins/oil.lua` |
 | **nvim-java** | Java 개발 환경 | `lua/plugins/java.lua` |
 | **nvim-dap** | 디버깅 지원 | `lua/plugins/dap.lua` |
-| **tpope/vim-fugitive** | Neovim 내장 Git 클라이언트 (status·diff·blame·리베이스) | `lua/plugins/fugitive.lua` |
+| **sindrets/diffview.nvim** | Git Diff 및 3-way merge UI | `lua/plugins/diffview.lua` |
 | **MagicDuck/grug-far.nvim** | 여러 줄/특수문자 포함 검색·치환 (Find & Replace) | `lua/plugins/grug-far.lua` |
 
 ### LSP 서버
