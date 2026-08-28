@@ -201,8 +201,10 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 |----------|----------------------|------|
 | `diff2_horizontal` | 일반 diff, 파일 히스토리 | 좌우 2-way 비교 |
 | `diff3_mixed` | Merge conflict | OURS/THEIRS 위 + 편집 결과 아래로 넓게 배치, `disable_diagnostics = true`로 LSP 진단 숨김 |
+| `diff2_vertical` | `g<C-x>` 순환 시 선택 가능 | 상하 2-way 비교 |
+| `diff1_inline` | `g<C-x>` 순환 시 선택 가능 | 단일 창에 word-diff 인라인 표시 (unified diff) |
 
-`enhanced_diff_hl = true` 옵션으로 word-diff 하이라이트가 더 세밀하게 표시되도록 설정되어 있습니다.
+`g<C-x>`는 기본 레이아웃(`diff2_horizontal`)에서 시작해 `diff2_vertical` → `diff1_inline` 순서로 순환합니다. `enhanced_diff_hl = true` 옵션으로 word-diff 하이라이트가 더 세밀하게 표시되도록 설정되어 있습니다.
 
 ### 명령어 요약
 
@@ -644,7 +646,7 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 | **fang2hou/blink-copilot** | Copilot blink.cmp 통합 | `lua/plugins/copilot.lua` |
 | **CopilotChat.nvim** | Copilot 대화형 AI | `lua/plugins/copilot-chat.lua` |
 | **coder/claudecode.nvim** | Claude Code 통합 | `lua/plugins/claude-code.lua` |
-| **stevearc/oil.nvim** | 파일 탐색기 | `lua/plugins/oil.lua` |
+| **stevearc/oil.nvim** | 파일 탐색기 / 인자 없이 실행 시 대시보드 대신 시작 화면으로 표시 | `lua/plugins/oil.lua` |
 | **nvim-java** | Java 개발 환경 | `lua/plugins/java.lua` |
 | **nvim-dap** | 디버깅 지원 | `lua/plugins/dap.lua` |
 | **dlyongemallo/diffview-plus.nvim** | Git Diff 및 3-way merge UI | `lua/plugins/diffview.lua` |

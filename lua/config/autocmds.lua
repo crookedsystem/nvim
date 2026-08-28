@@ -106,3 +106,19 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.spell = false
   end,
 })
+
+-- 인자 없이 실행하면 대시보드 대신 oil 파일 탐색기로 시작
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    local should_open = require("config.oil_startup").should_open(
+      vim.fn.argc(-1),
+      vim.api.nvim_buf_get_name(0),
+      vim.api.nvim_list_uis(),
+      vim.api.nvim_buf_line_count(0),
+      vim.api.nvim_buf_get_lines(0, 0, 1, false)[1] or ""
+    )
+    if should_open then
+      require("oil").open()
+    end
+  end,
+})

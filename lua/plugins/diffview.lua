@@ -39,7 +39,7 @@ return {
           layout = "diff2_horizontal",
           winbar_info = true,
         },
-        -- g<C-x>로 diff2_horizontal <-> unified inline(diff1_inline) 순환
+        -- g<C-x>로 diff2_horizontal -> diff2_vertical -> diff1_inline(unified) 순환
         cycle_layouts = {
           default = { "diff2_horizontal", "diff2_vertical", "diff1_inline" },
         },

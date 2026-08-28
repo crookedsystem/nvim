@@ -38,6 +38,7 @@ output="$(
     local config = require('diffview.config').get_config() \
     assert(config.view.default.layout == 'diff2_horizontal', 'expected horizontal review layout') \
     assert(config.view.merge_tool.layout == 'diff3_mixed', 'expected mixed 3-way merge layout') \
+    assert(vim.deep_equal(config.view.cycle_layouts.default, { 'diff2_horizontal', 'diff2_vertical', 'diff1_inline' }), 'expected cycle layouts') \
     local expected_maps = { \
       ['<leader>gd'] = 'Diffview (current file)', \
       ['<leader>gD'] = 'Diffview (repo)', \
