@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! rg -q 'sindrets/diffview.nvim' lua/plugins; then
-  printf 'expected diffview.nvim plugin spec\n' >&2
+if ! rg -q 'dlyongemallo/diffview-plus.nvim' lua/plugins; then
+  printf 'expected diffview-plus.nvim plugin spec\n' >&2
   exit 1
 fi
 
@@ -31,9 +31,9 @@ output="$(
   cd "$repo"
   nvim --headless conflict.txt "+lua \
     local plugins = require('lazy.core.config').plugins \
-    assert(plugins['diffview.nvim'], 'expected diffview.nvim plugin spec') \
+    assert(plugins['diffview-plus.nvim'], 'expected diffview-plus.nvim plugin spec') \
     assert(not plugins['codediff.nvim'], 'codediff.nvim plugin spec must be removed') \
-    require('lazy').load({ plugins = { 'diffview.nvim' } }) \
+    require('lazy').load({ plugins = { 'diffview-plus.nvim' } }) \
     assert(vim.fn.exists(':DiffviewOpen') == 2, 'expected :DiffviewOpen command') \
     local config = require('diffview.config').get_config() \
     assert(config.view.default.layout == 'diff2_horizontal', 'expected horizontal review layout') \

@@ -106,7 +106,7 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 
 ## 🔍 Diffview 사용 가이드
 
-**사용 플러그인**: [sindrets/diffview.nvim](https://github.com/sindrets/diffview.nvim)
+**사용 플러그인**: [dlyongemallo/diffview-plus.nvim](https://github.com/dlyongemallo/diffview-plus.nvim) (`sindrets/diffview.nvim`의 활발히 유지보수되는 포크)
 
 - **의존성**: nvim-lua/plenary.nvim
 - **요구사항**: Git 2.31 이상
@@ -647,7 +647,7 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 | **stevearc/oil.nvim** | 파일 탐색기 | `lua/plugins/oil.lua` |
 | **nvim-java** | Java 개발 환경 | `lua/plugins/java.lua` |
 | **nvim-dap** | 디버깅 지원 | `lua/plugins/dap.lua` |
-| **sindrets/diffview.nvim** | Git Diff 및 3-way merge UI | `lua/plugins/diffview.lua` |
+| **dlyongemallo/diffview-plus.nvim** | Git Diff 및 3-way merge UI | `lua/plugins/diffview.lua` |
 | **MagicDuck/grug-far.nvim** | 여러 줄/특수문자 포함 검색·치환 (Find & Replace) | `lua/plugins/grug-far.lua` |
 
 ### LSP 서버

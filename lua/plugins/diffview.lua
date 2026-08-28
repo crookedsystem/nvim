@@ -8,7 +8,7 @@ return {
     },
   },
   {
-    "sindrets/diffview.nvim",
+    "dlyongemallo/diffview-plus.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     cmd = {
       "DiffviewOpen",
@@ -38,6 +38,10 @@ return {
         file_history = {
           layout = "diff2_horizontal",
           winbar_info = true,
+        },
+        -- g<C-x>로 diff2_horizontal <-> unified inline(diff1_inline) 순환
+        cycle_layouts = {
+          default = { "diff2_horizontal", "diff2_vertical", "diff1_inline" },
         },
       },
     },
