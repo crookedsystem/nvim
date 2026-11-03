@@ -49,6 +49,20 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
   - x : 설치
   - / : 검색
 
+## 파일·창·탭 닫기
+
+현재 파일만 닫고 Neovim은 계속 사용하려면 `:bd` 또는 `Space b d`를 사용합니다. 명령어는 입력 후 `Enter`로 실행합니다.
+
+| 목적 | 명령어 | 현재 설정의 단축키 |
+|------|--------|--------------------|
+| 현재 파일 버퍼 닫기 (Neovim 유지) | `:bd` (`:bdelete`) | `Space b d` |
+| 저장하고 현재 파일 버퍼 닫기 | `:w \| bd` | — |
+| 현재 분할 창 닫기 | `:close` | `Ctrl+w` → `c` |
+| 현재 번호 탭 닫기 | `:tabclose` | `Space Tab d` |
+| 현재 창 종료 (마지막 창이면 Neovim 종료) | `:q` | — |
+
+`:bd`는 다른 버퍼를 보여 주며, 마지막 파일이면 빈 버퍼를 엽니다. 저장하지 않은 변경 사항이 있으면 닫기를 거부하므로, 저장하고 닫으려면 `:w | bd`를 사용합니다.
+
 ## 🎯 핵심 단축키
 
 | 기능              | 모드 | 키맵           | 설명                                           |
@@ -164,6 +178,7 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 | 키맵 | 설명 |
 |------|------|
 | `<Tab>` / `<S-Tab>` | 다음/이전 파일로 이동 |
+| `<C-h>` / `<C-l>` | 왼쪽/오른쪽 창으로 이동 (파일 패널 ↔ INDEX ↔ WORKING TREE) |
 | `]c` / `[c` | 다음/이전 변경 hunk로 이동 (diff 창 안에서) |
 | `<leader>b` | 파일 패널 표시/숨김 토글 |
 | `<leader>e` | 파일 패널로 포커스 이동 |
@@ -174,9 +189,22 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 | `R` | 파일 패널 새로고침 |
 | `cc` | Diffview 안에서 바로 커밋 (커밋 메시지 편집기 열림) |
 | `gf` | 원래 탭에서 현재 파일 열기 |
+| `gF` | 현재 파일을 일반 편집 탭에서 열면서 Diffview 닫기 |
 | `g<C-x>` | 사용 가능한 diff 레이아웃 순환 |
 | `g?` | 현재 화면(파일 패널/로그/diff)의 키맵 도움말 |
 | `q` | Diffview 닫기 |
+
+### 선택한 줄만 Stage
+
+`Space g D` (`:DiffviewOpen`)로 열고 **Changes**의 파일을 선택합니다. 줄 단위 stage는 좌우·상하 비교에서 지원하며, Unified에서는 지원하지 않습니다.
+
+1. `Ctrl+h` / `Ctrl+l`로 코드 창에 포커스를 옮깁니다.
+2. 오른쪽 **WORKING TREE**에서 `V`로 줄을 선택하고, 여러 줄이면 `j` / `k`로 범위를 늘립니다.
+3. `s`를 누르면 선택한 줄만 stage되고 파일 목록이 갱신됩니다.
+
+삭제된 줄은 왼쪽 **INDEX** 창에서 선택한 뒤 `s`를 누릅니다. 실제 파일 내용은 유지하고 Git index에 선택한 변경만 반영합니다.
+
+Visual 모드의 `s`는 일반 편집 창에서는 Flash 점프지만, Diffview 코드 창에서는 선택 줄 stage로 덮어씁니다. 파일 패널의 NORMAL 모드에서 누르는 `s`는 파일 전체를 Stage/Unstage합니다.
 
 ### Merge/Rebase 충돌 해결 (3-way)
 
