@@ -10,7 +10,7 @@ return {
       engines = {
         ripgrep = {
           defaults = {
-            flags = "--multiline",
+            flags = "--multiline --fixed-strings",
           },
         },
       },
