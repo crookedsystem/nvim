@@ -286,7 +286,7 @@ Snacks/fzf 계열 피커의 검색창은 항상 버퍼 1번째 줄만 검색어�
 2. 비주얼 모드에서 `<leader>sr`을 누르면 선택 영역으로만 범위를 좁혀서 검색/치환 (`GrugFarWithin`)
 3. `Search:` 입력에 검색어(여러 줄 붙여넣기 가능)를 채우면 디바운스로 자동 검색
 4. `Replace:` 입력을 채우면 diff가 표시되고, `<localleader>r`(Replace)로 실제 치환 실행
-5. 결과 줄 위에서 `<enter>`(Goto)로 해당 위치로 이동, `<localleader>o`(Open)는 커서를 유지한 채 열기
+5. `Esc`로 일반 모드로 전환한 뒤 `j` / `k`로 원하는 결과 줄에 커서를 놓고 `Enter`(Goto)를 누르면 해당 파일의 위치로 이동. `<localleader>o`(Open)는 검색창에 커서를 유지한 채 열기
 6. `<localleader>c`로 grug-far 버퍼 닫기
 
 > `<localleader>`를 별도로 설정하지 않았다면 기본값은 `\`입니다 (예: `<localleader>r` = `\r`).
@@ -295,6 +295,8 @@ Snacks/fzf 계열 피커의 검색창은 항상 버퍼 1번째 줄만 검색어�
 
 | 키맵 | 설명 |
 |------|------|
+| `Enter` | 커서가 놓인 검색 결과의 파일·위치로 이동 |
+| `<localleader>o` | 검색창에 커서를 유지한 채 결과 파일 열기 |
 | `<localleader>r` | Replace 실행 |
 | `<localleader>s` | 결과 영역 편집 내용을 원본 파일에 동기화 (Sync Locations) |
 | `<localleader>e` | 검색 엔진 전환 (ripgrep / astgrep / astgrep-rules) |
@@ -304,7 +306,9 @@ Snacks/fzf 계열 피커의 검색창은 항상 버퍼 1번째 줄만 검색어�
 | `<localleader>c` | grug-far 버퍼 닫기 |
 | `g?` | grug-far 키맵 도움말 |
 
-**특수문자를 리터럴로 검색하고 싶을 때**: `Flags:` 입력에 `--fixed-strings`를 추가하면 `{`, `(` 등을 정규식으로 해석하지 않고 그대로 매치합니다. 반대로 정말 여러 줄에 걸친 블록을 원본과 동일한 개행까지 포함해 정확히 매치하려면 `--multiline`을 함께 추가하세요(단, `--multiline` 사용 시 Sync/quickfix 액션은 비활성화되고 `Replace` 액션만 동작합니다).
+**기본 검색 모드**: `Flags:`의 기본값은 `--multiline --fixed-strings`입니다. `{`, `(`, `.` 등을 정규식으로 해석하지 않고 코드 그대로 검색하며, 여러 줄 코드도 붙여넣을 수 있습니다. 공백·들여쓰기·개행도 일치해야 합니다. 정규식이 필요하면 `Flags:`에서 `--fixed-strings`를 지우세요.
+
+설정 변경 후에는 Neovim을 재시작하세요. 이미 열린 검색창에는 `Flags:`에 `--fixed-strings`를 추가하면 바로 적용됩니다. `--multiline` 사용 시 Sync/quickfix 액션은 비활성화되므로 치환에는 `Replace` 액션을 사용하세요.
 
 **설정 파일**: `lua/plugins/grug-far.lua`
 
