@@ -95,10 +95,30 @@ local function runtimes(jdks)
   return list
 end
 
+local function resolve_lombok_agent(cmd)
+  -- nvim-java 레지스트리는 Lombok을 별도 패키지에 설치한다.
+  -- 기존 경로가 유효하면 유지하고, 설치 방식이 다를 때만 대체한다.
+  local mason_root = vim.env.MASON or (vim.fn.stdpath("data") .. "/mason")
+  for i, arg in ipairs(cmd) do
+    local jar = arg:match("^%-%-jvm%-arg=%-javaagent:(.+lombok%.jar)$")
+    if jar and vim.fn.filereadable(jar) == 0 then
+      for _, relative in ipairs({ "share/jdtls/lombok.jar", "share/lombok-nightly/lombok.jar" }) do
+        local candidate = mason_root .. "/" .. relative
+        if vim.fn.filereadable(candidate) == 1 then
+          cmd[i] = "--jvm-arg=-javaagent:" .. candidate
+          break
+        end
+      end
+    end
+  end
+end
+
 return {
   {
     "mfussenegger/nvim-jdtls",
     opts = function(_, opts)
+      resolve_lombok_agent(opts.cmd)
+
       local jdks = installed_jdks()
 
       local exe = jdtls_java_executable(jdks)
