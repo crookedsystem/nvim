@@ -93,7 +93,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 -- 특정 파일타입만 autoformat 활성화
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "java", "typescript", "kotlin", "yaml", "json" },
+  pattern = { "java", "javascript", "javascriptreact", "typescript", "typescriptreact", "kotlin", "yaml", "json" },
   callback = function()
     vim.b.autoformat = true
   end,
