@@ -23,11 +23,14 @@ nvim           # 첫 실행 시 Lazy → Mason이 나머지 LSP 자동 설치
 | 도구 | 용도 | macOS | Ubuntu |
 |------|------|-------|--------|
 | ripgrep / fd | 검색 | brew | apt |
-| Node.js | vtsls, prismals 등 Mason LSP | brew | nodesource |
+| Node.js | basedpyright, vtsls, prismals 등 Mason LSP | brew | nodesource |
 | Java 21+ (JDK) | jdtls, kotlin_lsp | temurin@21 cask | openjdk-21-jdk |
-| uv | pylsp 실행 (`uv run --with ...`) | brew | astral.sh |
+| uv | Python 디버깅 (`dap-python`) | brew | astral.sh |
+| Python 3 + venv | Mason의 basedpyright 설치용 가상환경 | brew (Python 미설치 시) | python3-venv |
 
-> **pylsp 참고**: Mason이 설치하지 않음 (`mason = false`). `uv run`이 실행 시점에 자동으로 패키지를 가져옴.
+> **Python LSP**: LazyVim의 Python extra가 Mason으로 `basedpyright`와 `ruff`를 설치합니다. 기존 PC에서는 설정 반영 후 Neovim을 재시작하고, `:Mason`에서 설치 상태를 확인하세요.
+
+Ubuntu에서 `ensurepip is not available`로 설치가 실패하면 `make deps`로 `python3-venv`를 설치한 뒤 `:MasonInstall basedpyright`를 다시 실행하세요.
 
 ### Kotlin LSP
 
@@ -331,29 +334,30 @@ Snacks/fzf 계열 피커의 검색창은 항상 버퍼 1번째 줄만 검색어�
 
 ### Python
 
-**사용 플러그인**: pylsp (Python Language Server Protocol)
+**사용 서버**: Basedpyright + Ruff (LazyVim `lang.python` extra)
 
-- **기본 설정**: `uv add pylsp, pylsp-mypy, mypy, ruff`
-- **주요 기능**:
-  - **rope_autoimport**: 자동 import 제안 (Code Action 통합)
-  - **ruff**: 빠른 linting 및 import 정리
-  - **mypy**: 강력한 타입 체킹
-  - **rope**: 리팩토링 및 auto-import 기능
+- **설치**: Mason이 `basedpyright`와 `ruff`를 자동 설치합니다. 프로젝트에 LSP 패키지를 추가할 필요는 없습니다.
+- **Basedpyright**: 자동완성, 자동 import, 정의·참조·구현체 탐색, 타입 검사
+- **Ruff**: lint, import 정리, 포맷팅
+- 기존 `pylsp`·`pylsp-mypy`·Rope 설정은 제거했습니다. 타입 검사 결과는 mypy와 다를 수 있습니다.
 
-**Auto Import 사용법**:
+**사용법**:
 
-1. 정의되지 않은 심볼(예: 함수, 클래스)에 커서를 위치
-2. `<leader>ca` 키로 Code Action 메뉴 열기
-3. "Import ..." 옵션 선택하여 자동으로 import 문 추가
+1. `gd` 또는 `F2`로 정의 위치로 이동
+2. 추상 클래스·메서드에서 `gI`로 구현체 탐색
+3. `gr`로 참조 탐색, `<leader>ca`로 import 추가·정리 등 Code Action 실행
 
-**주요 설정** (`lua/plugins/nvim-lspconfig.lua`):
+**서버 선택** (`lua/config/options.lua`):
 
 ```lua
-rope_autoimport = {
-  enabled = true,
-  code_actions = true,  -- Code Action으로 자동 import 제공
-}
+vim.g.lazyvim_python_lsp = "basedpyright"
 ```
+
+서버 설정과 Ruff의 hover 충돌 방지는 LazyVim Python extra의 기본값을 사용합니다.
+Basedpyright는 기본 타입 검사 모드가 `recommended`이며, 프로젝트의 `pyrightconfig.json` 또는 `pyproject.toml`에서 조정할 수 있습니다.
+구현체 탐색에는 Basedpyright 1.34.0 이상이 필요합니다. `:checkhealth vim.lsp`에서 `basedpyright`와 `ruff` 연결을 확인하세요.
+
+참고: [LazyVim Python](https://www.lazyvim.org/extras/lang/python), [Basedpyright 구현체 탐색](https://docs.basedpyright.com/latest/benefits-over-pyright/pylance-features/#go-to-implementations)
 
 ### TypeScript/JavaScript
 
@@ -600,7 +604,7 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 
 | 언어 | LSP 서버 | 추가 도구 | 특징 |
 |------|---------|----------|------|
-| **Python** | pylsp | ruff (linting), mypy (타입 체킹), rope (auto-import) | uv 런타임 사용, pyright 비활성화 |
+| **Python** | basedpyright | ruff (linting, import 정리) | LazyVim Python extra, Mason 설치 |
 | **Java** | jdtls | Java Test, Debug Adapter, Spring Boot Tools | nvim-java가 자동 관리 |
 | **TypeScript/JS** | tsserver | - | LazyVim extras |
 | **JSON** | jsonls | schemastore | LazyVim extras |
@@ -630,31 +634,22 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 - [LazyVim Discussion: How to replace blink.cmp with nvim-cmp?](https://github.com/LazyVim/LazyVim/discussions/6388)
 - [kickstart.nvim Issue: Use blink.cmp over nvim-cmp?](https://github.com/nvim-lua/kickstart.nvim/issues/1331)
 
-### Python LSP: pyright vs pylsp
+### Python LSP 선택
 
-**현재 사용**: pylsp + ruff + mypy ✅
+**현재 사용**: Basedpyright + Ruff
 
-| 비교 항목 | pyright (일반적 선택) | pylsp (사용 중) |
-|----------|----------------------|-----------------|
-| **속도** | 빠름 | 보통 |
-| **타입 체킹** | 강력한 내장 타입 체킹 | mypy 통합으로 보완 |
-| **의존성** | Node.js 필요 | Python만 필요 |
-| **유연성** | 설정 옵션 적음 | 매우 유연한 플러그인 시스템 |
-| **ML 라이브러리** | 일부 지원 부족 (opencv 등) | 플러그인으로 확장 가능 |
-| **Auto-import** | 내장 | rope 플러그인 필요 |
-| **LazyVim 기본값** | pyright (또는 basedpyright) | - |
+| 비교 항목 | Pyright | Basedpyright (사용 중) | pylsp |
+|----------|---------|-----------------------|-------|
+| 유지보수 | Microsoft | Pyright 기반 커뮤니티 포크 | Spyder IDE 팀·커뮤니티 |
+| 타입 검사 | 내장 | 내장, 기본 `recommended` 모드 | mypy 등 플러그인으로 확장 |
+| 구현체 탐색 (`gI`) | 미지원 | 지원 (1.34.0 이상) | 기본 서버 미지원 |
+| lint·import 정리 | Ruff와 함께 사용 | Ruff와 함께 사용 | 플러그인으로 확장 |
+| 이 설정의 설치 경로 | 비활성화 | Mason | 사용하지 않음 |
 
-**현재 설정의 장점**:
-- ✅ Node.js 의존성 없음
-- ✅ ruff로 빠른 linting
-- ✅ mypy로 강력한 타입 체킹
-- ✅ rope로 auto-import 기능
-- ✅ 높은 확장성
+Python의 추상 클래스·메서드에서 구현체를 찾기 위해 Basedpyright를 선택했습니다.
+Mason과 LazyVim Python extra의 기존 설치·설정 경로를 사용합니다.
 
-**참고 자료**:
-- [LazyVim Python LSP](https://www.lazyvim.org/extras/lang/python)
-- [nvimdots Discussion: pyright vs pylsp](https://github.com/ayamir/nvimdots/discussions/708)
-- [Getting the Best Python LSP for Neovim](https://toxigon.com/neovim-best-python-lsp)
+참고: [LazyVim Python](https://www.lazyvim.org/extras/lang/python), [Basedpyright 기능](https://docs.basedpyright.com/latest/benefits-over-pyright/pylance-features/)
 
 ### 결론
 
@@ -662,12 +657,10 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 
 1. **blink.cmp**: LazyVim의 최신 기본값 사용 중
 2. **LSP 서버**: 각 언어별 표준 또는 우수한 대안 사용
-3. **Python**: pylsp가 pyright보다 덜 일반적이지만, ruff + mypy 통합으로 동등한 기능 제공
+3. **Python**: Basedpyright가 타입 검사·구현체 탐색을, Ruff가 lint·import 정리를 담당
 4. **중복 없음**: 모든 도구가 명확한 역할 분담
 
-**개선 고려 사항** (선택적):
-- Python에서 더 빠른 타입 체킹을 원하면 pyright로 전환 고려
-- 하지만 현재 pylsp + ruff + mypy 조합도 충분히 효율적
+**Python 전환 확인**: Neovim 재시작 후 `:checkhealth vim.lsp`에서 `basedpyright`와 `ruff` 연결을 확인합니다.
 
 ## 🔌 설치된 플러그인 및 도구
 
@@ -705,7 +698,7 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 
 | 언어 | LSP 서버 | 추가 도구 | 설정 |
 |------|---------|----------|------|
-| **Python** | pylsp | ruff (linting), mypy (타입 체킹), rope (auto-import) | `lua/plugins/nvim-lspconfig.lua` |
+| **Python** | basedpyright | ruff (linting, import 정리) | `lua/config/options.lua` + LazyVim Python extra |
 | **Java** | jdtls | Java Test, Debug Adapter, Spring Boot Tools | `lua/plugins/java.lua` |
 | **TypeScript/JavaScript** | tsserver | - | LazyVim extras |
 | **JSON** | jsonls | schemastore | LazyVim extras |
@@ -727,7 +720,7 @@ LazyVim은 기본적으로 다음 도구들을 사용합니다:
   - Markdown: ❌ 비활성화
   
 - **nvim-lint** - 코드 린팅
-  - Python: ruff + mypy (pylsp 통합)
+  - Python: Ruff LSP가 lint, Basedpyright LSP가 타입 검사 담당
   - Markdown: ❌ 비활성화
 
 ### Copilot 설정
