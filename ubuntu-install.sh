@@ -4,7 +4,7 @@ set -e
 echo "=== Neovim config bootstrap (Ubuntu/Debian) ==="
 
 sudo apt-get update -qq
-sudo apt-get install -y ripgrep fd-find fzf curl unzip
+sudo apt-get install -y ripgrep fd-find fzf curl unzip python3-venv
 
 # fd-find installs as fdfind on Ubuntu; symlink to fd for LazyVim compatibility
 if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
@@ -23,7 +23,7 @@ if [ -z "$java_major" ] || [ "$java_major" -lt 21 ]; then
   sudo apt-get install -y openjdk-21-jdk
 fi
 
-# uv (pylsp를 uv run으로 실행)
+# uv (Python 디버깅의 dap-python에서 사용)
 if ! command -v uv &>/dev/null; then
   curl -LsSf https://astral.sh/uv/install.sh | sh
   # 현재 셸 세션에 PATH 즉시 반영
