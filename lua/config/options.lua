@@ -5,7 +5,7 @@
 vim.g.lazyvim_python_lsp = "basedpyright"
 
 -- yank를 시스템 클립보드(+ 레지스터)와 자동 연동
--- 로컬: pbcopy/xclip 자동 감지, SSH: init.lua에서 OSC 52 provider 명시
+-- init.lua에서 복사는 OSC 52, 붙여넣기는 nvim 내부에 보관한 내용 사용
 vim.opt.clipboard = "unnamedplus"
 
 -- UTF-8 인코딩 설정
