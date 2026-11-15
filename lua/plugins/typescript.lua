@@ -2,6 +2,22 @@ return {
   {
     "neovim/nvim-lspconfig",
     opts = {
+      servers = {
+        vtsls = {
+          settings = {
+            typescript = {
+              preferences = {
+                importModuleSpecifier = "relative",
+              },
+            },
+            javascript = {
+              preferences = {
+                importModuleSpecifier = "relative",
+              },
+            },
+          },
+        },
+      },
       setup = {
         eslint = function()
           LazyVim.format.register(LazyVim.lsp.formatter({
