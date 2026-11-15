@@ -80,6 +80,7 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 |                   | n    | `gr`           | 참조로 이동(cmd + b / cmd + 마우스클릭에 해당) |
 |                   | n    | `gD`           | 선언으로 이동                                  |
 | **LSP**           | n    | `<leader>ca`   | Code Action (Auto Import, Quick Fix 등)       |
+|                   | n    | `<leader>cM`   | TS/JS 누락된 import 일괄 추가 (`Space c Shift+m`) |
 |                   | n    | `<leader>cr`   | 심볼 이름 변경 (Rename)                        |
 |                   | n    | `<leader>cf`   | 코드 포맷팅                                    |
 |                   | n    | `K`            | Hover 문서 보기                                |
