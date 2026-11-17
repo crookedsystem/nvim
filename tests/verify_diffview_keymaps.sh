@@ -36,7 +36,8 @@ output="$(
     require('lazy').load({ plugins = { 'diffview-plus.nvim' } }) \
     assert(vim.fn.exists(':DiffviewOpen') == 2, 'expected :DiffviewOpen command') \
     local config = require('diffview.config').get_config() \
-    assert(config.view.default.layout == 'diff2_horizontal', 'expected horizontal review layout') \
+    assert(config.view.default.layout == 'diff1_inline', 'expected unified review layout') \
+    assert(config.view.file_history.layout == 'diff1_inline', 'expected unified history layout') \
     assert(config.view.merge_tool.layout == 'diff3_mixed', 'expected mixed 3-way merge layout') \
     assert(vim.deep_equal(config.view.cycle_layouts.default, { 'diff2_horizontal', 'diff2_vertical', 'diff1_inline' }), 'expected cycle layouts') \
     local expected_maps = { \

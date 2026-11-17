@@ -46,6 +46,12 @@ local ok, err = pcall(function()
       return view.cur_layout and view.cur_layout:is_valid()
         and view.cur_layout:is_files_loaded() and view.cur_layout.b.file.path == "sample.txt"
     end, 20), "diff load timeout")
+    -- 기본 Unified 화면에서 좌우 비교로 전환한 뒤 줄 단위 stage를 검증한다.
+    require("diffview.actions").cycle_layout()
+    assert(vim.wait(5000, function()
+      return view.cur_layout and view.cur_layout.a and view.cur_layout:is_valid()
+        and view.cur_layout:is_files_loaded()
+    end, 20), "side-by-side diff load timeout")
     vim.api.nvim_set_current_win(view.cur_layout[case.side].id)
     assert(vim.fn.maparg("s", "x", false, true).desc == "Stage selected lines")
     vim.api.nvim_win_set_cursor(0, { case.line, 0 })

@@ -101,6 +101,7 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 | **Diffview**      | n    | `<leader>gd`   | 현재 파일을 HEAD와 비교                        |
 |                   | n    | `<leader>gD`   | 저장소 전체 Git Diff                           |
 |                   | n    | `<leader>gH`   | 현재 파일 Git 커밋 히스토리                    |
+|                   | n    | `<leader>gA`   | 저장소 전체 Git 커밋 히스토리                  |
 |                   | diff | `]c` / `[c`    | 다음/이전 변경 hunk 이동                       |
 |                   | diff | `<Tab>` / `<S-Tab>` | 다음/이전 파일 이동                       |
 |                   | diff | `<leader>b`    | 파일 패널 표시/숨김                            |
@@ -130,7 +131,7 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 - **요구사항**: Git 2.31 이상
 - **설정 파일**: `lua/plugins/diffview.lua`
 
-변경 파일을 하나의 탭에서 순회하고 Git merge/rebase 충돌을 3-way 화면으로 해결하는 플러그인입니다. 일반 diff와 파일 이력은 좌우 비교 화면을 쓰고, 충돌 화면은 OURS/THEIRS 위에 편집 결과를 넓게 배치하는 `diff3_mixed` 레이아웃을 씁니다. 2026-08-02에 LazyVim/snacks.nvim 기본 `<leader>gd`/`gD`/`gi`(git diff picker)를 대체하며 도입했습니다.
+변경 파일을 하나의 탭에서 순회하고 Git merge/rebase 충돌을 3-way 화면으로 해결하는 플러그인입니다. 일반 diff와 파일 이력은 Unified 화면(`diff1_inline`)을 쓰고, 충돌 화면은 OURS/THEIRS 위에 편집 결과를 넓게 배치하는 `diff3_mixed` 레이아웃을 씁니다. 2026-08-02에 LazyVim/snacks.nvim 기본 `<leader>gd`/`gD`/`gi`(git diff picker)를 대체하며 도입했습니다.
 
 ### 시나리오별 사용법
 
@@ -140,7 +141,7 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 <leader>gd
 ```
 
-`DiffviewOpen HEAD -- %`와 동일합니다. 지금 열려 있는 버퍼를 HEAD와 비교하는 좌우 diff 화면을 엽니다. 파일 하나만 볼 때 저장소 전체 diff보다 빠릅니다.
+`DiffviewOpen HEAD -- %`와 동일합니다. 지금 열려 있는 버퍼를 HEAD와 비교하는 Unified diff 화면을 엽니다. 파일 하나만 볼 때 저장소 전체 diff보다 빠릅니다.
 
 **2) 저장소 전체 리뷰 (staged + unstaged + conflict)**
 
@@ -171,7 +172,9 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 
 `DiffviewFileHistory %`와 동일하게 현재 파일의 커밋 이력을 좌측 로그 패널 + 우측 diff로 보여줍니다. 로그 패널에서 커밋을 선택하면 그 커밋이 해당 파일에 남긴 변경분이 오른쪽에 표시됩니다.
 
-- `:DiffviewFileHistory` — 파일 지정 없이 저장소 전체 히스토리
+저장소 전체 커밋 이력은 `<leader>gA`로 엽니다. `DiffviewFileHistory`와 동일하며, 현재 버퍼 경로를 넘기지 않아 Oil 탐색기에서도 사용할 수 있습니다. `<leader>gH`는 Oil에서 파일을 연 뒤 사용합니다.
+
+- `<leader>gA` 또는 `:DiffviewFileHistory` — 파일 지정 없이 저장소 전체 히스토리
 - `:DiffviewFileHistory %` — 현재 버퍼만
 - `:DiffviewFileHistory lua/` — 디렉토리 단위 (해당 디렉토리에 영향을 준 커밋만)
 - `:DiffviewFileHistory --range=v1.0.0..HEAD` — 특정 범위로 로그 제한
@@ -200,7 +203,7 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 
 ### 선택한 줄만 Stage
 
-`Space g D` (`:DiffviewOpen`)로 열고 **Changes**의 파일을 선택합니다. 줄 단위 stage는 좌우·상하 비교에서 지원하며, Unified에서는 지원하지 않습니다.
+`Space g D` (`:DiffviewOpen`)로 열고 **Changes**의 파일을 선택합니다. 기본 화면인 Unified에서 `g<C-x>`를 한 번 눌러 좌우 비교로 전환합니다. 줄 단위 stage는 좌우·상하 비교에서 지원하며, Unified에서는 지원하지 않습니다.
 
 1. `Ctrl+h` / `Ctrl+l`로 코드 창에 포커스를 옮깁니다.
 2. 오른쪽 **WORKING TREE**에서 `V`로 줄을 선택하고, 여러 줄이면 `j` / `k`로 범위를 늘립니다.
@@ -231,12 +234,14 @@ Visual 모드의 `s`는 일반 편집 창에서는 Flash 점프지만, Diffview 
 
 | 레이아웃 | 적용 대상 (현재 설정) | 설명 |
 |----------|----------------------|------|
-| `diff2_horizontal` | 일반 diff, 파일 히스토리 | 좌우 2-way 비교 |
+| `diff2_horizontal` | `g<C-x>` 순환 시 선택 가능 | 좌우 2-way 비교 |
 | `diff3_mixed` | Merge conflict | OURS/THEIRS 위 + 편집 결과 아래로 넓게 배치, `disable_diagnostics = true`로 LSP 진단 숨김 |
 | `diff2_vertical` | `g<C-x>` 순환 시 선택 가능 | 상하 2-way 비교 |
-| `diff1_inline` | `g<C-x>` 순환 시 선택 가능 | 단일 창에 word-diff 인라인 표시 (unified diff) |
+| `diff1_inline` | 일반 diff, 파일 히스토리 (기본값) | 단일 창에 word-diff 인라인 표시 (unified diff) |
 
-`g<C-x>`는 기본 레이아웃(`diff2_horizontal`)에서 시작해 `diff2_vertical` → `diff1_inline` 순서로 순환합니다. `enhanced_diff_hl = true` 옵션으로 word-diff 하이라이트가 더 세밀하게 표시되도록 설정되어 있습니다.
+`g<C-x>`는 기본 레이아웃(`diff1_inline`)에서 시작해 `diff2_horizontal` → `diff2_vertical` 순서로 순환합니다. `enhanced_diff_hl = true` 옵션으로 word-diff 하이라이트가 더 세밀하게 표시되도록 설정되어 있습니다.
+
+`lua/plugins/diffview.lua`의 `opts.view.default.layout`과 `opts.view.file_history.layout`은 모두 `"diff1_inline"`으로 설정되어 있습니다. 기본값을 좌우 비교로 바꾸려면 두 값을 `"diff2_horizontal"`로 변경합니다.
 
 ### 명령어 요약
 

@@ -72,6 +72,7 @@ return {
       { "<leader>gd", "<cmd>DiffviewOpen HEAD -- %<cr>", desc = "Diffview (current file)" },
       { "<leader>gD", "<cmd>DiffviewOpen<cr>", desc = "Diffview (repo)" },
       { "<leader>gH", "<cmd>DiffviewFileHistory %<cr>", desc = "File History (current file)" },
+      { "<leader>gA", "<cmd>DiffviewFileHistory<cr>", desc = "File History (repo)" },
     },
     opts = {
       enhanced_diff_hl = true,
@@ -90,7 +91,7 @@ return {
       },
       view = {
         default = {
-          layout = "diff2_horizontal",
+          layout = "diff1_inline",
           winbar_info = true,
         },
         merge_tool = {
@@ -99,10 +100,10 @@ return {
           winbar_info = true,
         },
         file_history = {
-          layout = "diff2_horizontal",
+          layout = "diff1_inline",
           winbar_info = true,
         },
-        -- g<C-x>로 diff2_horizontal -> diff2_vertical -> diff1_inline(unified) 순환
+        -- g<C-x>로 diff1_inline(unified) -> diff2_horizontal -> diff2_vertical 순환
         cycle_layouts = {
           default = { "diff2_horizontal", "diff2_vertical", "diff1_inline" },
         },
