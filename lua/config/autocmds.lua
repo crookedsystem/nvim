@@ -58,6 +58,8 @@ local function goto_definition_or_references()
   })
 end
 
+require("config.imports").setup()
+
 -- LSP 네비게이션을 vim.lsp.buf 직접 호출로 오버라이드 (buffer-local)
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)

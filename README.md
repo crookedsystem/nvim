@@ -333,6 +333,17 @@ Snacks/fzf 계열 피커의 검색창은 항상 버퍼 1번째 줄만 검색어�
 
 **설정 파일**: `lua/plugins/baleia.lua`
 
+### Kotlin·Python·Java import 선택
+
+붙여넣은 코드에서도 이름을 다시 입력하지 않고 import할 모듈을 고를 수 있습니다.
+
+1. import가 필요한 이름 위에서 `<leader>ca`를 누릅니다.
+2. `Choose import for 이름`을 선택합니다.
+3. Python은 모듈 경로, Kotlin·Java는 패키지 경로를 확인하고 원하는 후보를 선택합니다.
+
+취소하면 코드를 유지합니다. 선택 중 코드를 수정하면 오래된 import 편집을 적용하지 않습니다.
+후보는 언어 서버가 인식한 프로젝트와 의존성 범위에서 표시됩니다. Java의 `Organize imports`는 기존 jdtls 기능을 사용합니다.
+
 ### Python
 
 **사용 서버**: Basedpyright + Ruff (LazyVim `lang.python` extra)
@@ -354,7 +365,7 @@ Snacks/fzf 계열 피커의 검색창은 항상 버퍼 1번째 줄만 검색어�
 vim.g.lazyvim_python_lsp = "basedpyright"
 ```
 
-서버 설정과 Ruff의 hover 충돌 방지는 LazyVim Python extra의 기본값을 사용합니다.
+자동 import 후보를 활성화하며, Ruff의 hover 충돌 방지는 LazyVim Python extra의 기본값을 사용합니다.
 Basedpyright는 기본 타입 검사 모드가 `recommended`이며, 프로젝트의 `pyrightconfig.json` 또는 `pyproject.toml`에서 조정할 수 있습니다.
 구현체 탐색에는 Basedpyright 1.34.0 이상이 필요합니다. `:checkhealth vim.lsp`에서 `basedpyright`와 `ruff` 연결을 확인하세요.
 
@@ -376,7 +387,10 @@ Basedpyright는 기본 타입 검사 모드가 `recommended`이며, 프로젝트
 1. **Code Action 방식**:
    - 정의되지 않은 심볼에 커서 위치
    - `<leader>ca` 키로 Code Action 메뉴 열기
-   - "Import ..." 옵션 선택하여 자동으로 import 문 추가
+   - "Add import from ..."을 선택하면 import 대상과 경로를 고르는 목록 열기
+   - 같은 이름의 다른 모듈, 상대 경로, `tsconfig.json`의 `baseUrl`·`paths` 경로 중 선택
+   - 붙여넣은 이름을 다시 입력할 필요 없이 선택한 import만 추가. 취소하면 코드 유지
+   - 경로 후보는 TypeScript가 해석하는 경로 기준이며, Jest 등의 별칭 설정은 별도로 필요
 
 2. **자동 완성 방식**:
    - 코드 작성 중 자동완성 메뉴에서 심볼 선택
