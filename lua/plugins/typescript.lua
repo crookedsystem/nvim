@@ -4,6 +4,17 @@ return {
     opts = {
       servers = {
         vtsls = {
+          keys = {
+            {
+              "<leader>ca",
+              function()
+                require("config.typescript_imports").code_action()
+              end,
+              desc = "Code Action",
+              mode = { "n", "x" },
+              has = "codeAction",
+            },
+          },
           settings = {
             typescript = {
               preferences = {
