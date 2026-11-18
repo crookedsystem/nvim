@@ -9,9 +9,15 @@ local function run()
   vim.bo.filetype = "typescript"
   local buf = vim.api.nvim_get_current_buf()
   local initial = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-  local server = dofile(vim.env.NVIM_IMPORT_REPO .. "/lua/plugins/typescript.lua")[1].opts.servers.vtsls
+  local typescript_specs = dofile(vim.env.NVIM_IMPORT_REPO .. "/lua/plugins/typescript.lua")
+  local server = typescript_specs[1].opts.servers.vtsls
+  assert(server.keys == nil, "vtsls keys table must not replace LazyVim vtsls keys")
+  local lsp_opts = { servers = { vtsls = { keys = { { "<leader>cM" } } } } }
+  typescript_specs[2].opts(nil, lsp_opts)
+  local vtsls_keys = lsp_opts.servers.vtsls.keys
+  assert(vtsls_keys[1][1] == "<leader>cM", "LazyVim vtsls keys must be kept")
   local code_action
-  for _, key in ipairs(server.keys) do
+  for _, key in ipairs(vtsls_keys) do
     assert(key[1] ~= "<leader>ci", "ci must not be mapped")
     if key[1] == "<leader>ca" then
       code_action = key[2]

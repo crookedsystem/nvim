@@ -73,7 +73,7 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 | **Oil 파일 관리** | n    | `oi`           | Oil 파일 탐색기                                |
 | **편집**          | v    | `gc`           | 그렙한 라인 주석                               |
 |                   | v    | `*` + :%s//foo | 선택한 라인 모두 찾아서 일괄 변경              |
-| **탭 이동**       | n    | `<S-hl>`       | 왼쪽/오른쪽 탭으로 이동                        |
+| **버퍼 이동**     | n    | `<S-hl>`       | 이전/다음 버퍼로 이동                          |
 | **윈도우 이동**   | n    | `<C-hjkl>`     | 윈도우 이동                                    |
 | **네비게이션**    | n    | `gd`           | 정의로 이동                                    |
 |                   | n    | `<C-o>`        | 이전 포커스로 이동                             |
@@ -91,7 +91,7 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 |                   | pick | `<A-r>`        | literal/regex 검색 모드 전환                    |
 | **검색/치환**     | n    | `<leader>sr`   | grug-far 열기 (여러 줄 붙여넣기 검색/치환)     |
 |                   | v    | `<leader>sr`   | 선택 영역 안에서만 검색/치환 (GrugFarWithin)   |
-| **디버깅**        | n    | `<leader>dp`   | 브레이크포인트 토글                            |
+| **디버깅**        | n    | `<leader>db`   | 브레이크포인트 토글                            |
 |                   | n    | `<leader>dc`   | 디버깅 시작/계속                               |
 |                   | n    | `<leader>do`   | 스텝 오버                                      |
 |                   | n    | `<leader>di`   | 스텝 인                                        |
@@ -117,11 +117,6 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 |                   | v    | `<leader>as`   | 선택 영역 Claude에 전송                        |
 |                   | n    | `<leader>aa`   | Diff 승인                                      |
 |                   | n    | `<leader>ad`   | Diff 거부                                      |
-| **AI Copilot**    | n,v  | `<leader>aa`   | CopilotChat 토글                               |
-|                   | n,v  | `<leader>ax`   | CopilotChat 대화 초기화                        |
-|                   | n,v  | `<leader>aq`   | 빠른 질문 (Quick Chat)                         |
-|                   | n,v  | `<leader>ap`   | 프롬프트 액션 선택                             |
-|                   | chat | `<C-s>`        | 프롬프트 전송                                  |
 
 ## 🔍 Diffview 사용 가이드
 
@@ -194,7 +189,6 @@ Kotlin LSP는 프로젝트의 `org.gradle.java.home`, `.java-version`, `.sdkmanr
 | `U` | 모든 Stage 해제 |
 | `X` | 선택 파일 변경 사항 되돌리기 (Restore entry) |
 | `R` | 파일 패널 새로고침 |
-| `cc` | Diffview 안에서 바로 커밋 (커밋 메시지 편집기 열림) |
 | `gf` | 원래 탭에서 현재 파일 열기 |
 | `gF` | 현재 파일을 일반 편집 탭에서 열면서 Diffview 닫기 |
 | `g<C-x>` | 사용 가능한 diff 레이아웃 순환 |
@@ -215,7 +209,7 @@ Visual 모드의 `s`는 일반 편집 창에서는 Flash 점프지만, Diffview 
 
 ### Merge/Rebase 충돌 해결 (3-way)
 
-충돌이 있는 저장소에서 `<leader>gD`(`:DiffviewOpen`)를 실행하면 conflict 상태인 파일이 파일 패널에 표시되고, 선택 시 `diff3_mixed` 레이아웃(OURS / BASE / THEIRS + 편집 결과 창)이 열립니다.
+충돌이 있는 저장소에서 `<leader>gD`(`:DiffviewOpen`)를 실행하면 conflict 상태인 파일이 파일 패널에 표시되고, 선택 시 `diff3_mixed` 레이아웃(위에 OURS / THEIRS, 아래에 편집 결과 창)이 열립니다.
 
 | 키맵 | 설명 |
 |------|------|
@@ -226,7 +220,7 @@ Visual 모드의 `s`는 일반 편집 창에서는 Flash 점프지만, Diffview 
 | `dx` | 현재 conflict 영역 삭제 |
 | `]x` / `[x` | 다음/이전 충돌 지점으로 이동 |
 
-대문자 버전(`<leader>cO`, `<leader>cT`, `<leader>cB`, `<leader>cA`, `dX`)은 커서 위치의 충돌 하나가 아니라 **파일 전체의 모든 충돌**에 같은 선택을 적용합니다. 해결이 끝난 파일은 파일 패널에서 `-`로 stage하고, 전부 끝나면 평소처럼 `git commit`(또는 `cc` 키맵)으로 마무리합니다.
+대문자 버전(`<leader>cO`, `<leader>cT`, `<leader>cB`, `<leader>cA`, `dX`)은 커서 위치의 충돌 하나가 아니라 **파일 전체의 모든 충돌**에 같은 선택을 적용합니다. 해결이 끝난 파일은 파일 패널에서 `-`로 stage하고, 전부 끝나면 평소처럼 `git commit`으로 마무리합니다.
 
 ### 레이아웃 종류
 
@@ -378,7 +372,7 @@ Basedpyright는 기본 타입 검사 모드가 `recommended`이며, 프로젝트
 
 ### TypeScript/JavaScript
 
-**사용 플러그인**: tsserver (TypeScript Language Server)
+**사용 서버**: vtsls (TypeScript Language Server)
 
 - **기본 설정**: LazyVim extras (`lang.typescript`) 자동 설치
 - **주요 기능**:
@@ -399,7 +393,7 @@ Basedpyright는 기본 타입 검사 모드가 `recommended`이며, 프로젝트
 
 2. **자동 완성 방식**:
    - 코드 작성 중 자동완성 메뉴에서 심볼 선택
-   - tsserver가 자동으로 import 문 추가
+   - vtsls가 자동으로 import 문 추가
 
 3. **Import 정리**:
    - `<leader>ca` 후 "Organize Imports" 선택
@@ -411,18 +405,15 @@ Basedpyright는 기본 타입 검사 모드가 `recommended`이며, 프로젝트
 
 ### Java
 
-**사용 플러그인**: [nvim-java](https://github.com/nvim-java/nvim-java)
+**사용 플러그인**: [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) (LazyVim `lang.java` extra)
 
-- **기본 설정**: nvim-java가 jdtls를 자동 관리
-- **요구사항**: Java 17 이상 필요
-- **자동 설치**: JDK, Java Test, Debug Adapter 자동 설치 지원
+- **기본 설정**: LazyVim `lang.java` extra가 jdtls를 실행합니다. `lua/plugins/java.lua`의 nvim-java는 비활성화되어 있습니다.
+- **요구사항**: jdtls 실행에 Java 21 이상 필요
+- **JDK 선택** (`lua/plugins/jdtls.lua`): `JAVA_HOME`이 21 미만이면 설치된 JDK 중 21 이상에서 가장 낮은 버전으로 jdtls를 실행하고, 설치된 JDK를 모두 `java.configuration.runtimes`에 등록합니다.
 
 **주요 기능**:
 
 - LSP (언어 서버): 자동 완성, 오류 검사, 리팩토링
-- 테스트 실행: Java Test 통합
-- 디버깅: nvim-dap 통합 디버그 어댑터
-- Spring Boot: Spring Boot Tools 지원
 
 **설치 후 확인**:
 
@@ -582,11 +573,10 @@ nvim --version
 
 **자동완성 엔진**으로, 사용자가 코드를 작성할 때 실시간으로 완성 제안을 제공합니다.
 
-- **역할**: LSP, Copilot, 버퍼, 경로 등 다양한 소스의 완성 제안을 통합하여 UI로 표시
+- **역할**: LSP, 버퍼, 경로 등 다양한 소스의 완성 제안을 통합하여 UI로 표시
 - **현재 사용**: **blink.cmp** (LazyVim 2025년 기본값)
 - **주요 소스**:
   - `lsp`: LSP 서버의 자동완성
-  - `copilot`: GitHub Copilot AI 제안
   - `buffer`: 현재 버퍼의 텍스트
   - `path`: 파일 경로
   - `snippets`: 코드 스니펫
@@ -607,16 +597,16 @@ nvim --version
 
 ### Completion Engine
 
-**blink.cmp**를 사용 중이며, 다음과 같이 통합되어 있습니다:
+**blink.cmp**를 사용 중이며, 다음과 같이 설정되어 있습니다 (`lua/plugins/copilot.lua`):
 
 ```lua
-sources = { "lsp", "path", "snippets", "buffer", "copilot" }
+sources = { "lsp", "path", "snippets", "buffer" }
 ```
 
-- ✅ **중복 없음**: nvim-cmp는 사용하지 않음 (example.lua는 비활성화됨)
-- ✅ **Copilot 통합**: blink.cmp의 source로 완벽하게 통합
-  - suggestion/panel 비활성화하여 모든 제안이 blink.cmp를 통해 표시
-  - ghost text 없이 completion menu에서 일관된 UI 제공
+- ✅ **중복 없음**: nvim-cmp는 사용하지 않음
+- ✅ **Copilot 분리**: Copilot은 blink.cmp 소스가 아니라 ghost text(회색 인라인 제안)로 표시
+  - 같은 제안이 메뉴와 ghost text에 중복으로 뜨지 않도록 blink.cmp 소스에서 뺐습니다
+  - `<Tab>`은 Copilot 제안 적용 전용이고, blink.cmp 메뉴는 `↑`/`↓`로 고르고 `Enter`로 적용
 
 ### LSP 서버 상세
 
@@ -625,14 +615,16 @@ sources = { "lsp", "path", "snippets", "buffer", "copilot" }
 | 언어 | LSP 서버 | 추가 도구 | 특징 |
 |------|---------|----------|------|
 | **Python** | basedpyright | ruff (linting, import 정리) | LazyVim Python extra, Mason 설치 |
-| **Java** | jdtls | Java Test, Debug Adapter, Spring Boot Tools | nvim-java가 자동 관리 |
-| **TypeScript/JS** | tsserver | - | LazyVim extras |
+| **Java** | jdtls | - | LazyVim `lang.java` extra(nvim-jdtls), `lua/plugins/jdtls.lua` |
+| **TypeScript/JS** | vtsls | eslint (`linting.eslint` extra) | LazyVim extras, `lua/plugins/typescript.lua` |
 | **JSON** | jsonls | schemastore | LazyVim extras |
 | **YAML** | yamlls | - | LazyVim extras |
 | **Docker** | dockerls | - | LazyVim extras |
-| **Kotlin** | kotlin_lsp | - | `lua/plugins/kotlin.lua` |
-| **Scala** | metals | - | LazyVim extras |
+| **Kotlin** | kotlin_lsp | - | kotlin.nvim이 실행, `lua/plugins/kotlin.lua` |
 | **TOML** | taplo | - | LazyVim extras |
+| **PHP** | intelephense | - | `lua/plugins/php.lua` |
+| **Prisma** | prismals | - | `lua/plugins/nvim-lspconfig.lua` |
+| **Dart** | dartls | - | FVM으로 실행, `lua/plugins/nvim-lspconfig.lua` |
 
 ## 📊 2025 트렌드 비교
 
@@ -695,38 +687,41 @@ Mason과 LazyVim Python extra의 기존 설치·설정 경로를 사용합니다
 - **lang.kotlin** - Kotlin 개발 환경
 - **lang.markdown** - Markdown 지원
 - **lang.python** - Python 개발 환경
-- **lang.scala** - Scala 개발 환경
 - **lang.toml** - TOML 파일 지원
 - **lang.typescript** - TypeScript/JavaScript 개발 환경
 - **lang.yaml** - YAML 파일 지원
+- **linting.eslint** - ESLint 연동 (JS/TS 저장 시 자동 수정)
 
 ### 커스텀 플러그인
 
 | 플러그인 | 용도 | 설정 파일 |
 |---------|------|-----------|
 | **zbirenbaum/copilot.lua** | GitHub Copilot AI 자동완성 | `lua/plugins/copilot.lua` |
-| **fang2hou/blink-copilot** | Copilot blink.cmp 통합 | `lua/plugins/copilot.lua` |
-| **CopilotChat.nvim** | Copilot 대화형 AI | `lua/plugins/copilot-chat.lua` |
 | **coder/claudecode.nvim** | Claude Code 통합 | `lua/plugins/claude-code.lua` |
 | **stevearc/oil.nvim** | 파일 탐색기 / 인자 없이 실행 시 대시보드 대신 시작 화면으로 표시 | `lua/plugins/oil.lua` |
-| **nvim-java** | Java 개발 환경 | `lua/plugins/java.lua` |
+| **mfussenegger/nvim-jdtls** | Java LSP (jdtls 실행 JDK·Lombok 경로 보정) | `lua/plugins/jdtls.lua` |
+| **AlexandrosAlexiou/kotlin.nvim** | Kotlin LSP(kotlin_lsp) 실행 | `lua/plugins/kotlin.lua` |
 | **nvim-dap** | 디버깅 지원 | `lua/plugins/dap.lua` |
 | **dlyongemallo/diffview-plus.nvim** | Git Diff 및 3-way merge UI | `lua/plugins/diffview.lua` |
 | **MagicDuck/grug-far.nvim** | 여러 줄/특수문자 포함 검색·치환 (Find & Replace) | `lua/plugins/grug-far.lua` |
+| **m00qek/baleia.nvim** | 로그 파일의 ANSI 색상 표시 | `lua/plugins/baleia.lua` |
+| **Mofiqul/vscode.nvim** | 컬러스킴 (diff 색상 보정 포함) | `lua/plugins/theme.lua` |
 
 ### LSP 서버
 
 | 언어 | LSP 서버 | 추가 도구 | 설정 |
 |------|---------|----------|------|
 | **Python** | basedpyright | ruff (linting, import 정리) | `lua/config/options.lua` + LazyVim Python extra |
-| **Java** | jdtls | Java Test, Debug Adapter, Spring Boot Tools | `lua/plugins/java.lua` |
-| **TypeScript/JavaScript** | tsserver | - | LazyVim extras |
+| **Java** | jdtls | - | LazyVim `lang.java` extra + `lua/plugins/jdtls.lua` |
+| **TypeScript/JavaScript** | vtsls | eslint (`linting.eslint` extra) | LazyVim extras + `lua/plugins/typescript.lua` |
 | **JSON** | jsonls | schemastore | LazyVim extras |
 | **YAML** | yamlls | - | LazyVim extras |
 | **Docker** | dockerls | - | LazyVim extras |
-| **Kotlin** | kotlin_lsp | - | `lua/plugins/kotlin.lua` |
-| **Scala** | metals | - | LazyVim extras |
+| **Kotlin** | kotlin_lsp | - | kotlin.nvim이 실행, `lua/plugins/kotlin.lua` |
 | **TOML** | taplo | - | LazyVim extras |
+| **PHP** | intelephense | - | `lua/plugins/php.lua` |
+| **Prisma** | prismals | - | `lua/plugins/nvim-lspconfig.lua` |
+| **Dart** | dartls | - | FVM으로 실행, `lua/plugins/nvim-lspconfig.lua` |
 | **Markdown** | ❌ 비활성화 | - | `lua/plugins/markdown.lua` |
 
 ### Linter & Formatter
@@ -747,13 +742,11 @@ LazyVim은 기본적으로 다음 도구들을 사용합니다:
 
 **사용 플러그인**:
 - [zbirenbaum/copilot.lua](https://github.com/zbirenbaum/copilot.lua)
-- [fang2hou/blink-copilot](https://github.com/fang2hou/blink-copilot)
 
 **설정 방식**:
-- Copilot 제안이 blink.cmp completion menu에 통합되어 표시
-- Ghost text(회색 텍스트) 비활성화
-- 모든 제안이 completion dialog에서 일관되게 표시
-- LazyVim의 기본 completion 엔진인 blink.cmp와 완벽하게 통합
+- Copilot 제안은 커서 뒤에 ghost text(회색 인라인 텍스트)로 자동 표시
+- blink.cmp completion menu에는 Copilot 제안을 넣지 않음 (LSP·경로·스니펫·버퍼만 표시)
+- `<Tab>`은 Copilot 제안 적용 전용이라 blink.cmp가 가로채지 않음
 
 **로그인 방법**:
 
@@ -778,9 +771,9 @@ LazyVim은 기본적으로 다음 도구들을 사용합니다:
 
 **사용 방법**:
 
-1. Insert 모드에서 코드를 작성하면 자동으로 Copilot 제안이 completion menu에 표시됩니다
-2. `<C-n>` / `<C-p>` 키로 제안 항목 간 이동
-3. `<Tab>` 또는 `<CR>`로 선택한 제안 적용
-4. `<C-e>`로 completion menu 닫기
+1. Insert 모드에서 코드를 작성하면 Copilot 제안이 ghost text로 표시됩니다
+2. `<Tab>`으로 Copilot 제안 적용
+3. `<M-]>` / `<M-[>`로 다음/이전 Copilot 제안 보기, `<C-]>`로 제안 닫기
+4. completion menu는 `↑` / `↓`(또는 `<C-n>` / `<C-p>`)로 항목을 고르고 `Enter`로 적용, `<C-e>`로 닫기
 
 **설정 파일**: `lua/plugins/copilot.lua`

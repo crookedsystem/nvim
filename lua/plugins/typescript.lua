@@ -4,17 +4,6 @@ return {
     opts = {
       servers = {
         vtsls = {
-          keys = {
-            {
-              "<leader>ca",
-              function()
-                require("config.typescript_imports").code_action()
-              end,
-              desc = "Code Action",
-              mode = { "n", "x" },
-              has = "codeAction",
-            },
-          },
           settings = {
             typescript = {
               preferences = {
@@ -64,6 +53,21 @@ return {
           end,
         })
       end)
+    end,
+  },
+  {
+    "neovim/nvim-lspconfig",
+    -- keys 목록을 opts 테이블로 넘기면 LazyVim vtsls extra의 키(<leader>cM, gR 등)를 통째로 덮어쓰므로 목록에 추가한다
+    opts = function(_, opts)
+      table.insert(opts.servers.vtsls.keys, {
+        "<leader>ca",
+        function()
+          require("config.typescript_imports").code_action()
+        end,
+        desc = "Code Action",
+        mode = { "n", "x" },
+        has = "codeAction",
+      })
     end,
   },
 }
