@@ -81,12 +81,15 @@ return {
           -- Unified에서도 Flash의 s로 빠지지 않고 지원 여부를 안내한다.
           { "x", "s", stage_selection, { desc = "Stage selected lines" } },
           { "n", "gF", goto_file_and_close, { desc = "Open file and close Diffview" } },
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
         },
         file_panel = {
           { "n", "gF", goto_file_and_close, { desc = "Open file and close Diffview" } },
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
         },
         file_history_panel = {
           { "n", "gF", goto_file_and_close, { desc = "Open file and close Diffview" } },
+          { "n", "q", "<cmd>DiffviewClose<cr>", { desc = "Close Diffview" } },
         },
       },
       view = {
