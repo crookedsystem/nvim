@@ -48,6 +48,30 @@ local function goto_file_and_close()
   require("diffview.actions").goto_file_edit_close()
 end
 
+-- File History는 처음 열 때 첫 변경 지점으로 이동하므로, 열기 전에 보던 파일과 화면 위치를 기억해 둔다.
+local pending_file_history_position
+
+local function open_current_file_history()
+  pending_file_history_position = {
+    file_path = vim.fn.resolve(vim.api.nvim_buf_get_name(0)),
+    saved_view = vim.fn.winsaveview(),
+  }
+  vim.cmd("DiffviewFileHistory %")
+end
+
+-- diffview는 cursor_map에 저장된 위치가 있으면 첫 변경 지점 대신 그 위치를 복원하므로, 기억한 화면 위치를 미리 넣어 둔다.
+local function seed_file_history_position(view)
+  local position = pending_file_history_position
+  pending_file_history_position = nil
+  if not (position and view.cursor_map and view.adapter) then
+    return
+  end
+  local repo_relative_path = vim.fs.relpath(vim.fn.resolve(view.adapter.ctx.toplevel), position.file_path)
+  if repo_relative_path then
+    view.cursor_map[repo_relative_path] = position.saved_view
+  end
+end
+
 return {
   {
     "folke/snacks.nvim",
@@ -71,11 +95,14 @@ return {
     keys = {
       { "<leader>gd", "<cmd>DiffviewOpen HEAD -- %<cr>", desc = "Diffview (current file)" },
       { "<leader>gD", "<cmd>DiffviewOpen<cr>", desc = "Diffview (repo)" },
-      { "<leader>gH", "<cmd>DiffviewFileHistory %<cr>", desc = "File History (current file)" },
+      { "<leader>gH", open_current_file_history, desc = "File History (current file)" },
       { "<leader>gA", "<cmd>DiffviewFileHistory<cr>", desc = "File History (repo)" },
     },
     opts = {
       enhanced_diff_hl = true,
+      hooks = {
+        view_opened = seed_file_history_position,
+      },
       keymaps = {
         view = {
           -- Unified에서도 Flash의 s로 빠지지 않고 지원 여부를 안내한다.
