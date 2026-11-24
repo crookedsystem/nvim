@@ -1,7 +1,29 @@
 OS := $(shell uname)
 
 .PHONY: install
-install: deps mason
+install: deps
+	@$(MAKE) link
+	@$(MAKE) mason
+
+.PHONY: link
+link:
+	@set -e; \
+	repo_dir="$$(pwd -P)"; \
+	config_dir="$$HOME/.config/nvim"; \
+	if [ -d "$$config_dir" ] && [ "$$(cd "$$config_dir" && pwd -P)" = "$$repo_dir" ]; then \
+		echo "=== Neovim config already points to $$repo_dir ==="; \
+		exit 0; \
+	fi; \
+	mkdir -p "$$HOME/.config"; \
+	if [ -e "$$config_dir" ] || [ -L "$$config_dir" ]; then \
+		if [ -e "$$config_dir.bak" ] || [ -L "$$config_dir.bak" ]; then \
+			echo "Backup already exists: $$config_dir.bak" >&2; \
+			exit 1; \
+		fi; \
+		mv "$$config_dir" "$$config_dir.bak"; \
+	fi; \
+	ln -s "$$repo_dir" "$$config_dir"; \
+	echo "=== Linked $$config_dir -> $$repo_dir ==="
 
 # 시스템 의존성 (ripgrep, node, JDK 21+, uv 등)
 .PHONY: deps

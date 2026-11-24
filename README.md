@@ -6,17 +6,23 @@
 ## 🚀 새 머신 설치
 
 ```bash
-git clone <your-repo> ~/.config/nvim
-cd ~/.config/nvim
-make install   # macOS / Ubuntu 자동 감지 (deps + mason)
+git clone <your-repo> ~/github/nvim
+cd ~/github/nvim
+make install   # macOS / Ubuntu 자동 감지 (deps → link → mason)
 nvim           # 첫 실행 시 Lazy → Mason이 나머지 LSP 자동 설치
 ```
 
 | 타깃 | 하는 일 |
 |------|---------|
-| `make install` | `deps` + `mason` |
+| `make install` | `deps` → `link` → `mason` |
+| `make link` | `~/.config/nvim`을 저장소 절대 경로에 심볼릭 링크로 연결 |
 | `make deps` | 시스템 의존성만 설치 (아래 표) |
 | `make mason` | Mason 레지스트리 갱신 + kotlin-lsp 재설치 |
+
+기존 `~/.config/nvim` 폴더·파일·링크는 `~/.config/nvim.bak`으로 이동한 뒤 연결합니다.
+이미 이 저장소를 가리키거나 저장소 자체가 `~/.config/nvim`에 있으면 그대로 유지합니다.
+백업이 이미 있으면 덮어쓰지 않고 중단하므로, 기존 백업을 다른 이름으로 옮긴 뒤 다시 실행하세요.
+링크만 설정하려면 `make link`를 실행하세요. 저장소를 이동하거나 삭제하면 링크가 끊어집니다.
 
 `make deps`가 설치하는 시스템 의존성:
 
